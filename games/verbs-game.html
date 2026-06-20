@@ -114,17 +114,6 @@
                 <p class="text-sm text-emerald-600 font-medium">מתרגלים פעלים בזכר ונקבה בקלות ובכיף!</p>
             </div>
         </div>
-        <div class="flex flex-wrap gap-2 justify-center bg-emerald-50 p-1.5 rounded-xl border border-emerald-200">
-            <button onclick="setPlayMode('manual')" id="btn-mode-manual" class="px-3 py-1.5 rounded-lg text-sm font-bold transition-all bg-emerald-500 text-white shadow-sm">
-                לחיצה ישירה 👆
-            </button>
-            <button onclick="setPlayMode('therapist')" id="btn-mode-therapist" class="px-3 py-1.5 rounded-lg text-sm font-bold transition-all text-emerald-700 hover:bg-emerald-100">
-                אישור קלינאית 🧑‍⚕️
-            </button>
-            <button onclick="setPlayMode('voice')" id="btn-mode-voice" class="px-3 py-1.5 rounded-lg text-sm font-bold transition-all text-emerald-700 hover:bg-emerald-100 flex items-center gap-1">
-                זיהוי קולי (בטא) 🎙
-            </button>
-        </div>
     </header>
 
     <main class="flex-grow w-full max-w-4xl mx-auto my-6 flex flex-col items-center justify-center gap-6">
@@ -255,16 +244,6 @@
                         <span id="boy-verb-word">קופץ</span>
                         <button onclick="event.stopPropagation(); speakSingleWord('boy')" class="w-10 h-10 bg-white hover:bg-sky-100 text-sky-700 rounded-full text-xl transition-all hover:scale-110 active:scale-95 shadow flex items-center justify-center border border-sky-300" title="השמיעי מילה">🔊</button>
                     </div>
-                    <div id="boy-manual-action-btn" class="hidden mt-4">
-                        <button onclick="event.stopPropagation(); triggerSuccess('boy')" class="w-full py-3 bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white rounded-xl font-bold shadow-md transition-all text-lg flex items-center justify-center gap-2">
-                            <span>✅ אמר/ה נכון!</span>
-                        </button>
-                    </div>
-                    <div id="boy-voice-btn" class="hidden mt-4 justify-center">
-                        <div class="bg-sky-100 border border-sky-300 text-sky-800 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 animate-pulse">
-                            <span>🗣 לחצו ואימרו "יונתן <span class="boy-target-txt underline font-extrabold">קופץ</span>"</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -343,16 +322,6 @@
                         <span id="girl-verb-word">קופצת</span>
                         <button onclick="event.stopPropagation(); speakSingleWord('girl')" class="w-10 h-10 bg-white hover:bg-pink-100 text-pink-700 rounded-full text-xl transition-all hover:scale-110 active:scale-95 shadow flex items-center justify-center border border-pink-300" title="השמיעי מילה">🔊</button>
                     </div>
-                    <div id="girl-manual-action-btn" class="hidden mt-4">
-                        <button onclick="event.stopPropagation(); triggerSuccess('girl')" class="w-full py-3 bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white rounded-xl font-bold shadow-md transition-all text-lg flex items-center justify-center gap-2">
-                            <span>✅ אמרה נכון!</span>
-                        </button>
-                    </div>
-                    <div id="girl-voice-btn" class="hidden mt-4 justify-center">
-                        <div class="bg-pink-100 border border-pink-300 text-pink-800 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 animate-pulse">
-                            <span>🗣 לחצו ואימרו "נועה <span class="girl-target-txt underline font-extrabold">קופצת</span>"</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -374,34 +343,12 @@
         </div>
     </footer>
 
-    <div id="mic-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex-col items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl border-4 border-rose-200">
-            <div id="overlay-mic-icon" onclick="simulateSpeechInput()" class="w-20 h-20 bg-red-100 hover:bg-red-200 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 pulse-mic-active text-4xl cursor-pointer transition-all active:scale-90" title="לחצו כאן אם המיקרופון של המכשיר חסום">
-                🎙
-            </div>
-            <h3 class="text-2xl font-black text-gray-800 mb-2">...אני מקשיב</h3>
-            <p class="text-gray-600 mb-2 text-base">עכשיו הילדה אומרת:</p>
-            <div id="target-voice-word" class="text-4xl font-extrabold text-rose-600 bg-rose-50 rounded-2xl py-3 px-6 inline-block mb-6 border-2 border-rose-100">
-                קופצת
-            </div>
-            <p class="text-xs text-gray-400 mb-4">לחיצה על המיקרופון האדום תדמה דיבור בהצלחה!</p>
-            <div class="flex flex-col gap-2">
-                <button onclick="simulateVoiceSuccess()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-md text-sm transition-all">
-                    אמרנו נכון! (אישור ידני) 🎯
-                </button>
-                <button onclick="closeMicOverlay()" class="w-full py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl text-sm transition-all">
-                    ביטול
-                </button>
-            </div>
-        </div>
-    </div>
 
     <script>
-    let currentPlayMode = 'manual';
     let currentVerb = 'jump';
-    let selectedCharacter = null;
     let speechStreak = 0;
     let isAnimating = { boy: false, girl: false };
+    let animationTimers = { boy: null, girl: null };
     let audioCtx = null;
     let speechEnabled = false;
 
@@ -496,102 +443,12 @@
         }
     }
 
-    let recognition = null;
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRec();
-        recognition.continuous = false;
-        recognition.lang = 'he-IL';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 3;
-
-        recognition.onresult = function(event) {
-            const results = event.results[0];
-            let matchesCorrectWord = false;
-            const targetWord = verbsData[currentVerb][selectedCharacter];
-            for (let i = 0; i < results.length; i++) {
-                const transcript = results[i].transcript.trim().toLowerCase();
-                if (transcript.includes(targetWord) ||
-                    (targetWord === 'קופצת' && (transcript.includes('קופץ') || transcript.includes('פצת'))) ||
-                    (targetWord === 'אוכלת' && (transcript.includes('אוכל') || transcript.includes('חלת'))) ||
-                    (targetWord === 'יושבת' && (transcript.includes('יושב') || transcript.includes('שבת'))) ||
-                    (targetWord === 'לומדת' && (transcript.includes('לומד') || transcript.includes('מדת'))) ||
-                    (targetWord === 'גוזרת' && (transcript.includes('גוזר') || transcript.includes('זרת'))) ||
-                    (targetWord === 'זורקת' && (transcript.includes('זורק') || transcript.includes('רקת'))) ||
-                    (targetWord === 'חושבת' && (transcript.includes('חושב') || transcript.includes('שבת')))
-                ) {
-                    matchesCorrectWord = true;
-                    break;
-                }
-            }
-            if (matchesCorrectWord) {
-                triggerSuccess(selectedCharacter);
-            } else {
-                const textHeard = results[0].transcript;
-                showFeedback(`שמעתי: "${textHeard}"... נסו שוב: "${targetWord}"!`);
-                speakInstruction(targetWord);
-            }
-            closeMicOverlay();
-        };
-
-        recognition.onerror = function() {
-            console.log("Speech recognition stopped or not allowed.");
-        };
-
-        recognition.onend = function() {
-            document.getElementById('voice-indicator').classList.add('hidden');
-        };
-    }
-
-    function simulateSpeechInput() {
-        playSynthesizedSound('success');
-        simulateVoiceSuccess();
-    }
-
     window.onload = function() {
-        setPlayMode('manual');
         selectVerb('jump');
         setTimeout(() => {
             showFeedback("ברוכים הבאים! לחצו על הילד או הילדה!");
         }, 1000);
     };
-
-    function setPlayMode(mode) {
-        currentPlayMode = mode;
-        playSynthesizedSound('click');
-        const modes = ['manual', 'therapist', 'voice'];
-        modes.forEach(m => {
-            const btn = document.getElementById(`btn-mode-${m}`);
-            if (m === mode) {
-                btn.className = "px-3 py-1.5 rounded-lg text-sm font-bold transition-all bg-emerald-500 text-white shadow-sm";
-            } else {
-                btn.className = "px-3 py-1.5 rounded-lg text-sm font-bold transition-all text-emerald-700 hover:bg-emerald-100";
-            }
-        });
-        const boyManual = document.getElementById('boy-manual-action-btn');
-        const girlManual = document.getElementById('girl-manual-action-btn');
-        const boyVoice = document.getElementById('boy-voice-btn');
-        const girlVoice = document.getElementById('girl-voice-btn');
-        if (mode === 'therapist') {
-            boyManual.classList.remove('hidden');
-            girlManual.classList.remove('hidden');
-            boyVoice.classList.add('hidden');
-            girlVoice.classList.add('hidden');
-            showFeedback("מצב קלינאית: הילדה אומרת את המילה ואת מאשרת!");
-        } else if (mode === 'voice') {
-            boyManual.classList.add('hidden');
-            girlManual.classList.add('hidden');
-            boyVoice.classList.remove('hidden');
-            girlVoice.classList.remove('hidden');
-            showFeedback("מצב מיקרופון: לחצו על דמות ואמרו את המילה בקול!");
-        } else {
-            boyManual.classList.add('hidden');
-            girlManual.classList.add('hidden');
-            boyVoice.classList.add('hidden');
-            girlVoice.classList.add('hidden');
-            showFeedback("לחיצה ישירה: לחצו על הדמויות והן יפעלו מיד!");
-        }
-    }
 
     function selectVerb(verb) {
         currentVerb = verb;
@@ -618,56 +475,13 @@
 
     function onCharacterClick(gender) {
         initAudioAndSpeech();
-        selectedCharacter = gender;
-        const targetWord = verbsData[currentVerb][gender];
-        if (currentPlayMode === 'manual') {
-            triggerSuccess(gender);
-        } else if (currentPlayMode === 'therapist') {
-            highlightCard(gender);
-            showFeedback(`הילדה צריכה להגיד: "${targetWord}"`);
-            speakInstruction(targetWord);
-        } else if (currentPlayMode === 'voice') {
-            highlightCard(gender);
-            openMicOverlay(targetWord);
-        }
+        triggerSuccess(gender);
     }
 
     function speakSingleWord(gender) {
         initAudioAndSpeech();
         const word = verbsData[currentVerb][gender];
         speakInstruction(word);
-    }
-
-    function openMicOverlay(word) {
-        document.getElementById('target-voice-word').innerText = word;
-        document.getElementById('mic-overlay').classList.remove('hidden');
-        document.getElementById('voice-indicator').classList.remove('hidden');
-        if (recognition) {
-            try { recognition.start(); } catch (e) { console.log('Speech API Already Listening.'); }
-        }
-    }
-
-    function closeMicOverlay() {
-        document.getElementById('mic-overlay').classList.add('hidden');
-        document.getElementById('voice-indicator').classList.add('hidden');
-        if (recognition) { try { recognition.stop(); } catch(e) {} }
-    }
-
-    function simulateVoiceSuccess() {
-        closeMicOverlay();
-        triggerSuccess(selectedCharacter);
-    }
-
-    function highlightCard(gender) {
-        const boyCard = document.getElementById('boy-card');
-        const girlCard = document.getElementById('girl-card');
-        if (gender === 'boy') {
-            boyCard.classList.add('border-sky-500', 'bg-sky-100');
-            girlCard.classList.remove('border-pink-500', 'bg-pink-100');
-        } else {
-            girlCard.classList.add('border-pink-500', 'bg-pink-100');
-            boyCard.classList.remove('border-sky-500', 'bg-sky-100');
-        }
     }
 
     function triggerSuccess(gender) {
@@ -686,46 +500,52 @@
 
     function startSpecificAnimation(gender, verb) {
         const svgElement = document.getElementById(`${gender}-svg`);
-        document.getElementById(`${gender}-chair`).classList.add('hidden');
-        document.getElementById(`${gender}-apple`).classList.add('hidden');
-        document.getElementById(`${gender}-ball`).classList.add('hidden');
-        document.getElementById(`${gender}-book`).classList.add('hidden');
-        document.getElementById(`${gender}-scissors`).classList.add('hidden');
-        document.getElementById(`${gender}-thought`).classList.add('hidden');
         isAnimating[gender] = true;
-        if (verb === 'jump') {
-            svgElement.classList.add('animate-jump');
-            playSynthesizedSound('jump');
-        } else if (verb === 'eat') {
-            document.getElementById(`${gender}-apple`).classList.remove('hidden');
-            document.getElementById(`${gender}-mouth`).classList.add('animate-chew-mouth');
-            document.getElementById(`${gender}-right-arm-group`).classList.add('animate-eat-hand');
-        } else if (verb === 'sit') {
-            document.getElementById(`${gender}-chair`).classList.remove('hidden');
-            document.getElementById(`${gender}-body`).classList.add('animate-sit');
-            document.getElementById(`${gender}-hand-L`).setAttribute('d', 'M38 48 Q35 60 45 60');
-            document.getElementById(`${gender}-hand-R`).setAttribute('d', 'M62 48 Q65 60 55 60');
-        } else if (verb === 'learn') {
-            document.getElementById(`${gender}-book`).classList.remove('hidden');
-            document.getElementById(`${gender}-hand-L`).setAttribute('d', 'M38 48 Q40 54 44 54');
-            document.getElementById(`${gender}-hand-R`).setAttribute('d', 'M62 48 Q60 54 56 54');
-            svgElement.classList.add('animate-read');
-        } else if (verb === 'cut') {
-            document.getElementById(`${gender}-scissors`).classList.remove('hidden');
-            document.getElementById(`${gender}-scissors-blades`).classList.add('animate-cut');
-            svgElement.classList.add('animate-read');
-        } else if (verb === 'throw') {
-            playSynthesizedSound('throw');
-            document.getElementById(`${gender}-ball`).classList.remove('hidden');
-            document.getElementById(`${gender}-right-arm-group`).classList.add('animate-throw-arm');
-            document.getElementById(`${gender}-ball`).classList.add('animate-throw-ball');
-        } else if (verb === 'think') {
-            playSynthesizedSound('think');
-            const thoughtBubble = document.getElementById(`${gender}-thought`);
-            thoughtBubble.classList.remove('hidden');
-            thoughtBubble.classList.add('animate-think-bubble');
-            document.getElementById(`${gender}-right-arm-group`).classList.add('animate-think-arm');
-        }
+
+        // Defer to next frame so the browser processes the class removals from
+        // resetAnimations() before we add new animation classes — this ensures
+        // animations always restart from the beginning.
+        requestAnimationFrame(() => {
+            if (verb === 'jump') {
+                svgElement.classList.add('animate-jump');
+                playSynthesizedSound('jump');
+            } else if (verb === 'eat') {
+                document.getElementById(`${gender}-apple`).classList.remove('hidden');
+                document.getElementById(`${gender}-mouth`).classList.add('animate-chew-mouth');
+                document.getElementById(`${gender}-right-arm-group`).classList.add('animate-eat-hand');
+            } else if (verb === 'sit') {
+                document.getElementById(`${gender}-chair`).classList.remove('hidden');
+                document.getElementById(`${gender}-body`).classList.add('animate-sit');
+                document.getElementById(`${gender}-hand-L`).setAttribute('d', 'M38 48 Q35 60 45 60');
+                document.getElementById(`${gender}-hand-R`).setAttribute('d', 'M62 48 Q65 60 55 60');
+            } else if (verb === 'learn') {
+                document.getElementById(`${gender}-book`).classList.remove('hidden');
+                document.getElementById(`${gender}-hand-L`).setAttribute('d', 'M38 48 Q40 54 44 54');
+                document.getElementById(`${gender}-hand-R`).setAttribute('d', 'M62 48 Q60 54 56 54');
+                svgElement.classList.add('animate-read');
+            } else if (verb === 'cut') {
+                document.getElementById(`${gender}-scissors`).classList.remove('hidden');
+                document.getElementById(`${gender}-scissors-blades`).classList.add('animate-cut');
+                svgElement.classList.add('animate-read');
+            } else if (verb === 'throw') {
+                playSynthesizedSound('throw');
+                document.getElementById(`${gender}-ball`).classList.remove('hidden');
+                document.getElementById(`${gender}-right-arm-group`).classList.add('animate-throw-arm');
+                document.getElementById(`${gender}-ball`).classList.add('animate-throw-ball');
+            } else if (verb === 'think') {
+                playSynthesizedSound('think');
+                const thoughtBubble = document.getElementById(`${gender}-thought`);
+                thoughtBubble.classList.remove('hidden');
+                thoughtBubble.classList.add('animate-think-bubble');
+                document.getElementById(`${gender}-right-arm-group`).classList.add('animate-think-arm');
+            }
+
+            // Auto-stop the animation after 3 seconds so it doesn't loop forever
+            if (animationTimers[gender]) clearTimeout(animationTimers[gender]);
+            animationTimers[gender] = setTimeout(() => {
+                resetAnimations();
+            }, 3000);
+        });
     }
 
     function resetAnimations() {

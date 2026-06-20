@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>פעלים עם יונתן ונועה</title>
+<title>פעלים - הילד והילדה</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 /* ===== FONTS ===== */
@@ -442,7 +442,7 @@ body {
 <!-- ===== HEADER ===== -->
 <header class="text-center py-4 px-4">
   <h1 class="text-4xl font-black" style="color:#1e40af; text-shadow: 0 2px 8px rgba(30,64,175,0.2);">
-    🎮 פעלים עם יונתן ונועה
+    🎮 פעלים - הילד והילדה
   </h1>
   <div class="flex items-center justify-center gap-4 mt-2">
     <div class="streak-badge">
@@ -473,7 +473,7 @@ body {
     <!-- JONATHAN (BOY) -->
     <div class="char-card boy-card" id="jonathan-card" onclick="handleCardClick('j',event)">
       <div class="flex items-center gap-2">
-        <span class="char-name">יונתן</span>
+        <span class="char-name">הילד</span>
         <span class="gender-badge boy-badge">זכר</span>
       </div>
       <div class="char-svg-wrap" id="j-svg-wrap">
@@ -609,7 +609,7 @@ body {
     <!-- NOA (GIRL) -->
     <div class="char-card girl-card" id="noa-card" onclick="handleCardClick('n',event)">
       <div class="flex items-center gap-2">
-        <span class="char-name">נועה</span>
+        <span class="char-name">הילדה</span>
         <span class="gender-badge girl-badge">נקבה</span>
       </div>
       <div class="char-svg-wrap" id="n-svg-wrap">
@@ -824,13 +824,13 @@ let isListening = false;
    VERB DATA
    ============================================================ */
 const VERBS = [
-  { name:'קפיצה',  boy:'קופץ',  girl:'קופצת',  anim:'jump',  sound:'jump',    sentence: (g)=> g==='j' ? 'יונתן קופץ' : 'נועה קופצת'  },
-  { name:'אכילה',  boy:'אוכל',  girl:'אוכלת',  anim:'eat',   sound:'success', sentence: (g)=> g==='j' ? 'יונתן אוכל' : 'נועה אוכלת'  },
-  { name:'ישיבה',  boy:'יושב',  girl:'יושבת',  anim:'sit',   sound:'success', sentence: (g)=> g==='j' ? 'יונתן יושב' : 'נועה יושבת'  },
-  { name:'למידה',  boy:'לומד',  girl:'לומדת',  anim:'learn', sound:'success', sentence: (g)=> g==='j' ? 'יונתן לומד' : 'נועה לומדת'  },
-  { name:'גזירה',  boy:'גוזר',  girl:'גוזרת',  anim:'cut',   sound:'success', sentence: (g)=> g==='j' ? 'יונתן גוזר' : 'נועה גוזרת'  },
-  { name:'זריקה',  boy:'זורק',  girl:'זורקת',  anim:'throw', sound:'throw',   sentence: (g)=> g==='j' ? 'יונתן זורק' : 'נועה זורקת'  },
-  { name:'חשיבה',  boy:'חושב',  girl:'חושבת',  anim:'think', sound:'think',   sentence: (g)=> g==='j' ? 'יונתן חושב' : 'נועה חושבת'  },
+  { name:'קפיצה',  boy:'קופץ',  girl:'קופצת',  anim:'jump',  sound:'jump',    sentence: (g)=> g==='j' ? 'הילד קופץ' : 'הילדה קופצת'  },
+  { name:'אכילה',  boy:'אוכל',  girl:'אוכלת',  anim:'eat',   sound:'success', sentence: (g)=> g==='j' ? 'הילד אוכל' : 'הילדה אוכלת'  },
+  { name:'ישיבה',  boy:'יושב',  girl:'יושבת',  anim:'sit',   sound:'success', sentence: (g)=> g==='j' ? 'הילד יושב' : 'הילדה יושבת'  },
+  { name:'למידה',  boy:'לומד',  girl:'לומדת',  anim:'learn', sound:'success', sentence: (g)=> g==='j' ? 'הילד לומד' : 'הילדה לומדת'  },
+  { name:'גזירה',  boy:'גוזר',  girl:'גוזרת',  anim:'cut',   sound:'success', sentence: (g)=> g==='j' ? 'הילד גוזר' : 'הילדה גוזרת'  },
+  { name:'זריקה',  boy:'זורק',  girl:'זורקת',  anim:'throw', sound:'throw',   sentence: (g)=> g==='j' ? 'הילד זורק' : 'הילדה זורקת'  },
+  { name:'חשיבה',  boy:'חושב',  girl:'חושבת',  anim:'think', sound:'think',   sentence: (g)=> g==='j' ? 'הילד חושב' : 'הילדה חושבת'  },
 ];
 
 /* ============================================================

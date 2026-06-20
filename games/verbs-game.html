@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>משחק הפעלים של נועה ויונתן</title>
+    <title>משחק הפעלים</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -110,7 +110,7 @@
         <div class="flex items-center gap-3">
             <span class="text-4xl">🗣</span>
             <div>
-                <h1 class="text-2xl font-extrabold text-emerald-700">משחק הפעלים של נועה ויונתן</h1>
+                <h1 class="text-2xl font-extrabold text-emerald-700">משחק הפעלים</h1>
                 <p class="text-sm text-emerald-600 font-medium">מתרגלים פעלים בזכר ונקבה בקלות ובכיף!</p>
             </div>
         </div>
@@ -239,7 +239,7 @@
                     </svg>
                 </div>
                 <div class="w-full text-center mt-4">
-                    <h3 class="text-xl font-extrabold text-sky-800">הילד יונתן</h3>
+                    <h3 class="text-xl font-extrabold text-sky-800">הילד</h3>
                     <div class="mt-2 inline-flex items-center gap-3 bg-sky-200 text-sky-950 font-black text-2xl pl-3 pr-5 py-2 rounded-full border-2 border-sky-300 shadow-sm relative">
                         <span id="boy-verb-word">קופץ</span>
                         <button onclick="event.stopPropagation(); speakSingleWord('boy')" class="w-10 h-10 bg-white hover:bg-sky-100 text-sky-700 rounded-full text-xl transition-all hover:scale-110 active:scale-95 shadow flex items-center justify-center border border-sky-300" title="השמיעי מילה">🔊</button>
@@ -317,7 +317,7 @@
                     </svg>
                 </div>
                 <div class="w-full text-center mt-4">
-                    <h3 class="text-xl font-extrabold text-pink-800">הילדה נועה</h3>
+                    <h3 class="text-xl font-extrabold text-pink-800">הילדה</h3>
                     <div class="mt-2 inline-flex items-center gap-3 bg-pink-200 text-pink-950 font-black text-2xl pl-3 pr-5 py-2 rounded-full border-2 border-pink-300 shadow-sm relative">
                         <span id="girl-verb-word">קופצת</span>
                         <button onclick="event.stopPropagation(); speakSingleWord('girl')" class="w-10 h-10 bg-white hover:bg-pink-100 text-pink-700 rounded-full text-xl transition-all hover:scale-110 active:scale-95 shadow flex items-center justify-center border border-pink-300" title="השמיעי מילה">🔊</button>
@@ -488,7 +488,7 @@
         playSynthesizedSound('success');
         resetAnimations();
         const targetWord = verbsData[currentVerb][gender];
-        const name = (gender === 'boy') ? 'הילד יונתן' : 'הילדה נועה';
+        const name = (gender === 'boy') ? 'הילד' : 'הילדה';
         const phrase = `${name} ${targetWord}`;
         showFeedback(`🎯 נכון! ${phrase}!`);
         speakInstruction(phrase);

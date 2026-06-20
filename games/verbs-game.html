@@ -63,10 +63,7 @@ body {
 .char-card.boy-card { border: 4px solid #93c5fd; }
 .char-card.girl-card { border: 4px solid #f9a8d4; }
 .char-card:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(0,0,0,0.15); }
-.char-card.highlighted {
-  box-shadow: 0 0 0 5px #fbbf24, 0 14px 40px rgba(251,191,36,0.4);
-  transform: translateY(-4px);
-}
+
 .char-card.success-flash {
   animation: successFlash 0.6s ease;
 }
@@ -305,24 +302,6 @@ body {
   color: white;
   box-shadow: 0 4px 16px rgba(99,102,241,0.4);
 }
-
-/* ===== APPROVE BUTTON ===== */
-.approve-btn {
-  padding: 14px 28px;
-  background: linear-gradient(135deg, #34d399, #10b981);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-size: 1.4rem;
-  font-weight: 900;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(16,185,129,0.4);
-  transition: all 0.2s;
-  display: none;
-}
-.approve-btn:hover { transform: scale(1.05); }
-.approve-btn:active { transform: scale(0.96); }
-.approve-btn.visible { display: block; }
 
 /* ===== VOICE OVERLAY ===== */
 #voice-overlay {
@@ -602,8 +581,6 @@ body {
         <span class="target-word" id="j-word">קופץ</span>
       </div>
 
-      <!-- Approval mode button -->
-      <button class="approve-btn" id="j-approve" onclick="approveSuccess('j',event)">✓ נכון!</button>
     </div>
 
     <!-- NOA (GIRL) -->
@@ -767,8 +744,6 @@ body {
         <span class="target-word" id="n-word">קופצת</span>
       </div>
 
-      <!-- Approval mode button -->
-      <button class="approve-btn" id="n-approve" onclick="approveSuccess('n',event)">✓ נכון!</button>
     </div>
 
   </div><!-- end characters row -->
@@ -780,7 +755,6 @@ body {
     <p class="text-sm font-bold text-gray-500 uppercase tracking-wide">מצב משחק:</p>
     <div class="flex gap-3 flex-wrap justify-center">
       <button class="mode-btn active" id="mode-click" onclick="selectMode('click',event)">👆 לחיצה ישירה</button>
-      <button class="mode-btn" id="mode-approval" onclick="selectMode('approval',event)">✅ אישור קלינאית</button>
       <button class="mode-btn" id="mode-voice" onclick="selectMode('voice',event)">🎙️ זיהוי קולי</button>
     </div>
     <p class="text-xs text-gray-400 text-center mt-1" id="mode-hint">לחצ/י על הדמות להפעלת האנימציה</p>
@@ -816,7 +790,7 @@ let currentMode = 'click';
 let streakCount = 0;
 let audioCtx = null;
 let audioReady = false;
-let pendingChar = null; // 'j' or 'n', for approval/voice mode
+let pendingChar = null; // 'j' or 'n', for voice mode
 let recognition = null;
 let isListening = false;
 
@@ -1019,9 +993,6 @@ function triggerSuccess(char) {
   streakCount++;
   document.getElementById('streak-num').textContent = streakCount;
 
-  // Hide approve buttons
-  document.getElementById('j-approve').classList.remove('visible');
-  document.getElementById('n-approve').classList.remove('visible');
   pendingChar = null;
 }
 
@@ -1035,29 +1006,8 @@ function handleCardClick(char, evt) {
 
   if (currentMode === 'click') {
     triggerSuccess(char);
-  } else if (currentMode === 'approval') {
-    // Highlight this card, show approve button
-    const jCard = document.getElementById('jonathan-card');
-    const nCard = document.getElementById('noa-card');
-    jCard.classList.remove('highlighted');
-    nCard.classList.remove('highlighted');
-    document.getElementById('j-approve').classList.remove('visible');
-    document.getElementById('n-approve').classList.remove('visible');
-
-    const card = document.getElementById(char === 'j' ? 'jonathan-card' : 'noa-card');
-    card.classList.add('highlighted');
-    const approveBtn = document.getElementById(char + '-approve');
-    approveBtn.classList.add('visible');
-    pendingChar = char;
   } else if (currentMode === 'voice') {
     openVoiceOverlay(char);
-  }
-}
-
-function approveSuccess(char, evt) {
-  if (evt) evt.stopPropagation();
-  if (pendingChar === char) {
-    triggerSuccess(char);
   }
 }
 
@@ -1091,8 +1041,6 @@ function resetAnimState() {
     const svg = svgWrap.querySelector('svg');
     svg.classList.remove('anim-jump','anim-eat','anim-sit','anim-learn','anim-cut','anim-throw','anim-think');
   });
-  document.getElementById('j-approve').classList.remove('visible');
-  document.getElementById('n-approve').classList.remove('visible');
   document.getElementById('jonathan-card').classList.remove('highlighted','success-flash');
   document.getElementById('noa-card').classList.remove('highlighted','success-flash');
   pendingChar = null;
@@ -1111,7 +1059,6 @@ function resetAll(evt) {
    ============================================================ */
 const MODE_HINTS = {
   click: 'לחצ/י על הדמות להפעלת האנימציה',
-  approval: 'לחצ/י על הדמות, הילד אומר, ואז לחצ/י "נכון!"',
   voice: 'לחצ/י על הדמות ואמר/י את המילה בקול',
 };
 

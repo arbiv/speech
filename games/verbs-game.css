@@ -265,34 +265,33 @@ footer {
 }
 
 /* ── LAUGH ────────────────────────────────────────────────────── */
-.anim-laugh .char-group {
-  animation: laughBody 0.25s ease-in-out 8 both;
+#j-head, #n-head {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
 }
-.anim-laugh .j-larm,.anim-laugh .n-larm {
-  animation: laughLArm 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.05s forwards;
+.j-mouth-open, .n-mouth-open {
+  display: none;
 }
-.anim-laugh .j-rarm,.anim-laugh .n-rarm {
-  animation: laughRArm 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.05s forwards;
+.anim-laugh #j-head, .anim-laugh #n-head {
+  animation: laughHead 0.25s ease-in-out 8 both;
 }
-.anim-laugh .j-mouth,.anim-laugh .n-mouth {
-  animation: laughMouth 0.25s ease-in-out 8 both;
+.anim-laugh .j-mouth, .anim-laugh .n-mouth {
+  display: none;
 }
-@keyframes laughBody {
-  0%,100% { transform: translateY(0)   rotate(0deg); }
-  25%     { transform: translateY(-10px) rotate(-4deg); }
-  75%     { transform: translateY(-10px) rotate(4deg); }
+.anim-laugh .j-mouth-open, .anim-laugh .n-mouth-open {
+  display: block;
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: laughMouthOpen 0.25s ease-in-out 8 both;
 }
-@keyframes laughLArm {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(32deg); }
+@keyframes laughHead {
+  0%,100% { transform: rotate(0deg) translateY(0); }
+  25%     { transform: rotate(-5deg) translateY(-6px); }
+  75%     { transform: rotate(5deg) translateY(-6px); }
 }
-@keyframes laughRArm {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-32deg); }
-}
-@keyframes laughMouth {
-  0%,100% { transform: scaleY(1); }
-  50%     { transform: scaleY(1.7) translateY(-4px); }
+@keyframes laughMouthOpen {
+  0%,100% { transform: scaleY(0.5); }
+  50%     { transform: scaleY(1); }
 }
 
 /* ── SIT ──────────────────────────────────────────────────────── */

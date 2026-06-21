@@ -157,7 +157,6 @@ function speak(text, rate=0.8) {
 
 function speakWord(char, evt) {
   if (evt) { evt.stopPropagation(); }
-  activateAudio();
   const v = VERBS[currentVerbIndex];
   speak(char === 'j' ? v.boy : v.girl);
 }
@@ -192,10 +191,11 @@ function triggerAnimation(char, verbAnim) {
    SUCCESS TRIGGER
    ============================================================ */
 function triggerSuccess(char) {
+  const v = VERBS[currentVerbIndex];
+  speak(v.sentence(char), 0.8);
+
   clearTimers();
   activateAudio();
-
-  const v = VERBS[currentVerbIndex];
 
   const card = document.getElementById(char === 'j' ? 'jonathan-card' : 'noa-card');
   card.classList.remove('success-flash');
@@ -204,7 +204,6 @@ function triggerSuccess(char) {
   card.classList.remove('highlighted');
 
   triggerAnimation(char, v.anim);
-  speak(v.sentence(char), 0.8);
   spawnParticles(card);
 
   streakCount++;

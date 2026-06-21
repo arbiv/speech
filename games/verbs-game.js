@@ -15,7 +15,7 @@ let isListening = false;
    ============================================================ */
 const VERBS = [
   { name:'קפיצה',  boy:'קופץ',  girl:'קופצת',  anim:'jump',  sound:'jump',    sentence: (g)=> g==='j' ? 'הילד קופץ' : 'הילדה קופצת'  },
-  { name:'אכילה',  boy:'אוכל',  girl:'אוכלת',  anim:'eat',   sound:'success', sentence: (g)=> g==='j' ? 'הילד אוֹכֵל' : 'הילדה אוֹכֶלֶת'  },
+  { name:'צחוק',   boy:'צוחק',  girl:'צוחקת',  anim:'laugh', sound:'success', sentence: (g)=> g==='j' ? 'הילד צוחק' : 'הילדה צוחקת'  },
   { name:'ישיבה',  boy:'יושב',  girl:'יושבת',  anim:'sit',   sound:'success', sentence: (g)=> g==='j' ? 'הילד יושב' : 'הילדה יושבת'  },
   { name:'למידה',  boy:'לומד',  girl:'לומדת',  anim:'learn', sound:'success', sentence: (g)=> g==='j' ? 'הילד לומד' : 'הילדה לומדת'  },
   { name:'גזירה',  boy:'גוזר',  girl:'גוזרת',  anim:'cut',   sound:'success', sentence: (g)=> g==='j' ? 'הילד גוזר' : 'הילדה גוזרת'  },
@@ -143,7 +143,7 @@ function speakWord(char, evt) {
   activateAudio();
   playClick();
   const v = VERBS[currentVerbIndex];
-  speak(v.sentence(char));
+  speak(char === 'j' ? v.boy : v.girl);
 }
 
 /* ============================================================
@@ -161,7 +161,7 @@ function triggerAnimation(char, verbAnim) {
   if (!svgWrap) return;
   const svg = svgWrap.querySelector('svg');
 
-  svg.classList.remove('anim-jump','anim-eat','anim-sit','anim-learn','anim-cut','anim-throw','anim-think','anim-run');
+  svg.classList.remove('anim-jump','anim-laugh','anim-sit','anim-learn','anim-cut','anim-throw','anim-think','anim-run');
   void svg.offsetWidth;
   svg.classList.add('anim-' + verbAnim);
 
@@ -238,7 +238,7 @@ function resetAnimState() {
     const svgWrap = document.getElementById(c + '-svg-wrap');
     if (!svgWrap) return;
     const svg = svgWrap.querySelector('svg');
-    svg.classList.remove('anim-jump','anim-eat','anim-sit','anim-learn','anim-cut','anim-throw','anim-think','anim-run');
+    svg.classList.remove('anim-jump','anim-laugh','anim-sit','anim-learn','anim-cut','anim-throw','anim-think','anim-run');
   });
   document.getElementById('jonathan-card').classList.remove('highlighted','success-flash');
   document.getElementById('noa-card').classList.remove('highlighted','success-flash');

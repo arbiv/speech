@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="verbs-game.css">
 </head>
 <body class="min-h-screen flex flex-col" onclick="activateAudio()" ontouchstart="activateAudio()">
-<div style="position:fixed;top:4px;left:6px;font-size:10px;font-family:monospace;color:#94a3b8;z-index:9999;pointer-events:none;">2026-06-21 build 2</div>
 
 <!-- ===== HEADER ===== -->
 <header class="text-center py-4 px-4">
@@ -378,48 +377,6 @@
   </div>
 </div>
 
-<script src="verbs-game.js?v=nosound"></script>
-<script>
-/* Inline overrides — bypasses cached verbs-game.js */
-function speak(text, rate) {
-  if (!('speechSynthesis' in window)) return;
-  rate = rate || 0.8;
-  speechSynthesis.cancel();
-  var u = new SpeechSynthesisUtterance(text);
-  var voices = speechSynthesis.getVoices();
-  var hv = voices.find(function(v){ return v.lang==='he-IL'||v.lang==='he'; })
-         || voices.find(function(v){ return v.lang.startsWith('he'); })
-         || null;
-  if (hv) u.voice = hv;
-  u.lang = 'he-IL';
-  u.rate = rate;
-  u.pitch = 1.1;
-  u.volume = 1;
-  speechSynthesis.speak(u);
-}
-
-function triggerSuccess(char) {
-  var v = VERBS[currentVerbIndex];
-  speak(v.sentence(char), 0.8);
-
-  clearTimers();
-  var card = document.getElementById(char === 'j' ? 'jonathan-card' : 'noa-card');
-  card.classList.remove('success-flash');
-  void card.offsetWidth;
-  card.classList.add('success-flash');
-  card.classList.remove('highlighted');
-  triggerAnimation(char, v.anim);
-  spawnParticles(card);
-  streakCount++;
-  document.getElementById('streak-num').textContent = streakCount;
-  pendingChar = null;
-}
-
-function speakWord(char, evt) {
-  if (evt) evt.stopPropagation();
-  var v = VERBS[currentVerbIndex];
-  speak(char === 'j' ? v.boy : v.girl);
-}
-</script>
+<script src="verbs-game.js"></script>
 </body>
 </html>

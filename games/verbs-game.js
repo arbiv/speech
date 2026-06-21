@@ -128,26 +128,15 @@ function playSoundForVerb(anim) {
 /* ============================================================
    SPEECH SYNTHESIS
    ============================================================ */
-let heVoice = null;
-
-function initVoice() {
-  const tryLoad = () => {
-    const voices = speechSynthesis.getVoices();
-    heVoice = voices.find(v => v.lang === 'he-IL' || v.lang === 'he')
-      || voices.find(v => v.lang.startsWith('he'))
-      || voices[0] || null;
-  };
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = tryLoad;
-  }
-  tryLoad();
-}
-
 function speak(text, rate=0.8) {
   if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  if (heVoice) u.voice = heVoice;
+  const voices = speechSynthesis.getVoices();
+  const hv = voices.find(v => v.lang === 'he-IL' || v.lang === 'he')
+           || voices.find(v => v.lang.startsWith('he'))
+           || null;
+  if (hv) u.voice = hv;
   u.lang = 'he-IL';
   u.rate = rate;
   u.pitch = 1.1;
@@ -204,6 +193,7 @@ function triggerSuccess(char) {
   card.classList.remove('highlighted');
 
   triggerAnimation(char, v.anim);
+  playSoundForVerb(v.anim);
   spawnParticles(card);
 
   streakCount++;
@@ -232,6 +222,7 @@ function handleCardClick(char, evt) {
 function selectVerb(index, evt) {
   if (evt) evt.stopPropagation();
   activateAudio();
+  playClick();
   currentVerbIndex = index;
 
   document.querySelectorAll('.verb-tab').forEach((t,i) => {
@@ -260,6 +251,7 @@ function resetAnimState() {
 function resetAll(evt) {
   if (evt) evt.stopPropagation();
   activateAudio();
+  playClick();
   resetAnimState();
   clearTimers();
 }
@@ -275,6 +267,7 @@ const MODE_HINTS = {
 function selectMode(mode, evt) {
   if (evt) evt.stopPropagation();
   activateAudio();
+  playClick();
   currentMode = mode;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('mode-' + mode).classList.add('active');
@@ -461,7 +454,6 @@ function spawnParticles(container) {
    INIT
    ============================================================ */
 window.addEventListener('DOMContentLoaded', () => {
-  initVoice();
   try { _sounds = _initSounds(); } catch(e) { _sounds = {}; }
   const v = VERBS[0];
   document.getElementById('j-word').textContent = v.boy;

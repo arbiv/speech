@@ -34,14 +34,26 @@ async function activateAudio() {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     } catch(e) { return; }
   }
-  if (audioCtx.state === 'suspended') {
+  // iOS requires starting an actual audio node synchronously within the user gesture
+  try {
+    const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    src.connect(audioCtx.destination);
+    src.start(0);
+  } catch(e) {}
+  // Unlock speechSynthesis for iOS (must be called within a user gesture)
+  if ('speechSynthesis' in window && !audioReady) {
+    try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); } catch(e) {}
+  }
+  if (audioCtx.state !== 'running') {
     try { await audioCtx.resume(); } catch(e) {}
   }
   audioReady = audioCtx.state === 'running';
 }
 
 function playTone(freq, type, dur, vol=0.3, delay=0) {
-  if (!audioCtx) return;
+  if (!audioCtx || audioCtx.state !== 'running') return;
   const t = audioCtx.currentTime + delay;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -56,19 +68,19 @@ function playTone(freq, type, dur, vol=0.3, delay=0) {
 }
 
 function playSuccess() {
-  if (!audioCtx) return;
+  if (!audioCtx || audioCtx.state !== 'running') return;
   const notes = [523, 659, 784, 1047];
   notes.forEach((f,i) => playTone(f, 'sine', 0.18, 0.3, i*0.12));
   playTone(1047, 'sine', 0.35, 0.25, 0.5);
 }
 
 function playClick() {
-  if (!audioCtx) return;
+  if (!audioCtx || audioCtx.state !== 'running') return;
   playTone(600, 'square', 0.05, 0.15);
 }
 
 function playJump() {
-  if (!audioCtx) return;
+  if (!audioCtx || audioCtx.state !== 'running') return;
   const t = audioCtx.currentTime;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -84,7 +96,7 @@ function playJump() {
 }
 
 function playThrow() {
-  if (!audioCtx) return;
+  if (!audioCtx || audioCtx.state !== 'running') return;
   const t = audioCtx.currentTime;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -100,7 +112,7 @@ function playThrow() {
 }
 
 function playThink() {
-  if (!audioCtx) return;
+  if (!audioCtx || audioCtx.state !== 'running') return;
   [[261,0],[329,0.2],[392,0.4],[523,0.7]].forEach(([f,d]) =>
     playTone(f, 'triangle', 0.5, 0.18, d));
 }
@@ -193,7 +205,7 @@ async function triggerSuccess(char) {
 
   triggerAnimation(char, v.anim);
   playSoundForVerb(v.anim);
-  setTimeout(() => speak(v.sentence(char), 0.8), 200);
+  setTimeout(() => speak(v.sentence(char), 0.8), 600);
   spawnParticles(card);
 
   streakCount++;

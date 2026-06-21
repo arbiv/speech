@@ -206,7 +206,7 @@ function triggerSuccess(char) {
 
   triggerAnimation(char, v.anim);
   playSoundForVerb(v.anim);
-  setTimeout(() => speak(v.sentence(char), 0.8), 600);
+  speak(v.sentence(char), 0.8);
   spawnParticles(card);
 
   streakCount++;

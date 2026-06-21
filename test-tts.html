@@ -7,75 +7,86 @@
   body { font-family: Arial, sans-serif; padding: 2rem; background: #f0f4ff; direction: rtl; }
   h1 { color: #1e40af; margin-bottom: 0.5rem; }
   p { color: #555; margin-bottom: 2rem; font-size: 0.9rem; }
+  h2 { color: #374151; margin: 1.5rem 0 0.5rem; font-size: 1rem; text-transform: uppercase; letter-spacing: .05em; }
   .btn {
-    display: block;
-    width: 100%;
-    margin: 0.6rem 0;
-    padding: 1rem 1.5rem;
-    border: 2px solid #cbd5e1;
-    border-radius: 12px;
-    background: white;
-    font-size: 1.1rem;
-    cursor: pointer;
-    text-align: right;
+    display: block; width: 100%; margin: 0.5rem 0;
+    padding: 0.9rem 1.2rem; border: 2px solid #cbd5e1;
+    border-radius: 12px; background: white;
+    font-size: 1rem; cursor: pointer; text-align: right;
     transition: background 0.15s, border-color 0.15s;
   }
   .btn:hover { background: #eff6ff; border-color: #93c5fd; }
-  .btn:active { background: #dbeafe; }
-  .label { font-size: 0.75rem; color: #888; display: block; margin-top: 2px; }
-  .spoken { font-weight: bold; color: #1d4ed8; font-size: 1.3rem; }
-  #status { margin-top: 1.5rem; padding: 0.75rem 1rem; background: #fef9c3; border-radius: 8px; color: #78350f; font-size: 0.9rem; min-height: 2.5rem; }
+  .spoken { font-weight: bold; color: #1d4ed8; font-size: 1.2rem; }
+  .label { font-size: 0.72rem; color: #888; display: block; margin-top: 2px; }
+  #status { margin-top: 1.5rem; padding: 0.75rem 1rem; background: #fef9c3;
+            border-radius: 8px; color: #78350f; font-size: 0.9rem; min-height: 2.5rem; }
+  .good { border-color: #86efac !important; background: #f0fdf4 !important; }
 </style>
 </head>
 <body>
-<h1>בדיקת הגייה TTS — אוכל (זכר)</h1>
-<p>לחץ/י על כל אפשרות ובדוק/י אם נשמע <strong>במלרע</strong> (הפועל "אוֹכֵל") ולא במלעיל (שם העצם "אֹכֶל").</p>
+<h1>בדיקת הגייה TTS — אוכל (עדכון)</h1>
+<p>רק <strong>אוכלים</strong> עבד עד כה. הנה גישות חדשות. לחץ/י וסמן/י מה עובד.</p>
 
-<button class="btn" onclick="test('אוכל', this)">
-  <span class="spoken">אוכל</span>
-  <span class="label">1. המילה בלבד — ללא ניקוד (הגדרה נוכחית)</span>
+<h2>גישה 1 — תחביר מכריח פועל</h2>
+
+<button class="btn" onclick="test('אוכל תפוח', this)">
+  <span class="spoken">אוכל תפוח</span>
+  <span class="label">פועל + מושא ישיר — "food apple" לא הגיוני, אז TTS יבחר פועל</span>
 </button>
 
-<button class="btn" onclick="test('אוֹכֵל', this)">
-  <span class="spoken">אוֹכֵל</span>
-  <span class="label">2. המילה עם ניקוד מלא (צורת הפועל)</span>
+<button class="btn" onclick="test('אוכל ושותה', this)">
+  <span class="spoken">אוכל ושותה</span>
+  <span class="label">שני פעלים בצמד — "food and drinking" אינו הגיוני</span>
 </button>
 
-<button class="btn" onclick="test('הילד אוכל', this)">
-  <span class="spoken">הילד אוכל</span>
-  <span class="label">3. משפט שלם ללא ניקוד</span>
+<button class="btn" onclick="test('הוא אוכל תפוח', this)">
+  <span class="spoken">הוא אוכל תפוח</span>
+  <span class="label">כינוי גוף + פועל + מושא</span>
 </button>
 
-<button class="btn" onclick="test('הילד אוֹכֵל', this)">
-  <span class="spoken">הילד אוֹכֵל</span>
-  <span class="label">4. משפט שלם עם ניקוד (גרסה נוכחית)</span>
+<h2>גישה 2 — שאלה / קריאה</h2>
+
+<button class="btn" onclick="test('אתה אוכל?', this)">
+  <span class="spoken">אתה אוכל?</span>
+  <span class="label">שאלה — TTS משתמש בהטעמה שונה</span>
 </button>
 
-<button class="btn" onclick="test('הוא אוכל', this)">
-  <span class="spoken">הוא אוכל</span>
-  <span class="label">5. כינוי גוף + פועל</span>
+<button class="btn" onclick="test('אוכל!', this)">
+  <span class="spoken">אוכל!</span>
+  <span class="label">קריאה — סימן קריאה משנה פרוזודיה</span>
 </button>
 
-<button class="btn" onclick="test('הוא אוֹכֵל', this)">
-  <span class="spoken">הוא אוֹכֵל</span>
-  <span class="label">6. כינוי גוף + פועל עם ניקוד</span>
-</button>
+<h2>גישה 3 — שינוי הצורה המדוברת (לא המוצגת)</h2>
 
-<button class="btn" onclick="test('כרגע אוכל', this)">
-  <span class="spoken">כרגע אוכל</span>
-  <span class="label">7. תואר פועל + פועל ("כרגע אוכל")</span>
+<button class="btn" onclick="test('לאכול', this)">
+  <span class="spoken">לאכול</span>
+  <span class="label">שם הפועל — חד-משמעי לגמרי (מוצג: "אוכל", מדובר: "לאכול"?)</span>
 </button>
 
 <button class="btn" onclick="test('אוכלים', this)">
   <span class="spoken">אוכלים</span>
-  <span class="label">8. רבים — פחות דו-משמעי</span>
+  <span class="label">✓ עבד! רבים — האם לאמץ כפתרון? (מוצג: "אוכל", מדובר: "אוכלים")</span>
 </button>
+
+<h2>גישה 4 — SSML פונמות (Chrome בלבד)</h2>
+
+<button class="btn" onclick="testSSML('<speak><phoneme alphabet=\'ipa\' ph=\'ʔo.ˈχel\'>אוכל</phoneme></speak>', this)">
+  <span class="spoken">SSML IPA: /ʔo.ˈχel/</span>
+  <span class="label">פונמה מפורשת עם הטעמה על הברה שנייה</span>
+</button>
+
+<button class="btn" onclick="testSSML('<speak><prosody rate=\'slow\' pitch=\'+10%\'>אוכל</prosody></speak>', this)">
+  <span class="spoken">SSML prosody</span>
+  <span class="label">קצב איטי + גובה טון</span>
+</button>
+
+<h2>גישה 5 — קול שונה</h2>
+<div id="voice-list"></div>
 
 <div id="status">לחץ/י על כפתור לבדיקה</div>
 
 <script>
 let heVoice = null;
-const voices = () => speechSynthesis.getVoices();
 
 function initVoice() {
   const load = () => {
@@ -83,12 +94,24 @@ function initVoice() {
     heVoice = all.find(v => v.lang === 'he-IL' || v.lang === 'he')
            || all.find(v => v.lang.startsWith('he'))
            || null;
-    const status = document.getElementById('status');
-    if (heVoice) {
-      status.textContent = 'קול עברי נמצא: ' + heVoice.name + ' (' + heVoice.lang + ')';
+
+    const heVoices = all.filter(v => v.lang.startsWith('he'));
+    const vlist = document.getElementById('voice-list');
+    if (heVoices.length > 1) {
+      heVoices.forEach((v, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.innerHTML = `<span class="spoken">קול: ${v.name}</span><span class="label">${v.lang} — לחץ/י לשמוע "אוכל" בקול זה</span>`;
+        btn.onclick = () => testWithVoice('אוכל', v, btn);
+        vlist.appendChild(btn);
+      });
     } else {
-      status.textContent = 'לא נמצא קול עברי — TTS עשוי לא לעבוד נכון';
+      vlist.innerHTML = '<p style="color:#888;font-size:.85rem">קול עברי אחד בלבד: ' + (heVoice ? heVoice.name : 'לא נמצא') + '</p>';
     }
+
+    document.getElementById('status').textContent = heVoice
+      ? 'קול עברי: ' + heVoice.name + ' (' + heVoice.lang + ')'
+      : 'אזהרה: לא נמצא קול עברי!';
   };
   if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = load;
   load();
@@ -102,12 +125,35 @@ function test(text, btn) {
   u.rate = 0.8;
   u.pitch = 1.1;
   u.volume = 1;
+  fire(u, text, btn);
+}
 
+function testSSML(ssml, btn) {
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(ssml);
+  if (heVoice) u.voice = heVoice;
+  u.lang = 'he-IL';
+  u.rate = 0.8;
+  u.volume = 1;
+  fire(u, ssml, btn);
+}
+
+function testWithVoice(text, voice, btn) {
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.voice = voice;
+  u.lang = voice.lang;
+  u.rate = 0.8;
+  u.pitch = 1.1;
+  u.volume = 1;
+  fire(u, text + ' [' + voice.name + ']', btn);
+}
+
+function fire(u, label, btn) {
   document.querySelectorAll('.btn').forEach(b => b.style.background = '');
   btn.style.background = '#dbeafe';
-
-  document.getElementById('status').textContent = 'מדבר: "' + text + '"';
-  u.onend = () => { document.getElementById('status').textContent = 'סיים: "' + text + '" — האם נשמע במלרע?'; };
+  document.getElementById('status').textContent = 'מדבר: "' + label + '"';
+  u.onend = () => { document.getElementById('status').textContent = 'סיים: "' + label + '" — האם נשמע במלרע?'; };
   speechSynthesis.speak(u);
 }
 

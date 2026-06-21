@@ -4,8 +4,6 @@
 let currentVerbIndex = 0;
 let currentMode = 'click';
 let streakCount = 0;
-let audioCtx = null;
-let audioReady = false;
 let pendingChar = null; // 'j' or 'n', for voice mode
 let recognition = null;
 let isListening = false;
@@ -25,99 +23,100 @@ const VERBS = [
 ];
 
 /* ============================================================
-   AUDIO
+   AUDIO — HTML Audio (Web Audio API unavailable on this device)
    ============================================================ */
-function activateAudio() {
-  if (audioCtx && audioCtx.state === 'running') { audioReady = true; return; }
-  if (!audioCtx) {
-    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return; }
+let _sounds = null;
+
+function _makeWav(fn, dur) {
+  const SR = 22050, n = Math.floor(SR * dur);
+  const ab = new ArrayBuffer(44 + n * 2), dv = new DataView(ab);
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
+  ws(0,'RIFF'); dv.setUint32(4,36+n*2,true); ws(8,'WAVE'); ws(12,'fmt ');
+  dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,1,true);
+  dv.setUint32(24,SR,true); dv.setUint32(28,SR*2,true);
+  dv.setUint16(32,2,true); dv.setUint16(34,16,true);
+  ws(36,'data'); dv.setUint32(40,n*2,true);
+  for (let i = 0; i < n; i++) {
+    dv.setInt16(44 + i*2, Math.round(Math.max(-1, Math.min(1, fn(i/SR))) * 32767), true);
   }
-  if (typeof audioCtx.resume === 'function') {
-    audioCtx.resume().then(() => { audioReady = audioCtx.state === 'running'; }).catch(() => {});
-  }
-  audioReady = audioCtx.state === 'running';
+  const bytes = new Uint8Array(ab);
+  let b = '';
+  for (let i = 0; i < bytes.length; i++) b += String.fromCharCode(bytes[i]);
+  return 'data:audio/wav;base64,' + btoa(b);
 }
 
-// Inner tone builder — no retry, callers handle it
-function playTone(freq, type, dur, vol=0.3, delay=0) {
-  const t = audioCtx.currentTime + delay;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, t);
-  gain.gain.setValueAtTime(vol, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
-  osc.start(t);
-  osc.stop(t + dur + 0.05);
+function _initSounds() {
+  const SR = 22050;
+  const sounds = {};
+
+  // Click: short 600 Hz square wave
+  sounds.click = new Audio(_makeWav(t => {
+    if (t > 0.05) return 0;
+    return (Math.sin(2*Math.PI*600*t) > 0 ? 1 : -1) * 0.15 * (1 - t/0.05);
+  }, 0.1));
+
+  // Jump: ascending frequency sweep 200→700 Hz (sawtooth)
+  let ph = 0;
+  sounds.jump = new Audio(_makeWav(t => {
+    const freq = 200 + 500 * Math.min(1, t/0.4);
+    ph += freq / SR;
+    return t > 0.45 ? 0 : (2*(ph%1)-1) * 0.2 * Math.max(0, 1 - t/0.4);
+  }, 0.5));
+
+  // Throw: descending frequency sweep 600→100 Hz (sawtooth)
+  ph = 0;
+  sounds.throw = new Audio(_makeWav(t => {
+    const freq = 600 - 500 * Math.min(1, t/0.6);
+    ph += freq / SR;
+    return t > 0.65 ? 0 : (2*(ph%1)-1) * 0.25 * Math.max(0, 1 - t/0.6);
+  }, 0.7));
+
+  // Think: 4 ascending triangle-wave notes with delays
+  sounds.think = new Audio(_makeWav(t => {
+    const notes = [[261,0],[329,0.2],[392,0.4],[523,0.7]];
+    let sum = 0;
+    for (const [freq, start] of notes) {
+      const nt = t - start;
+      if (nt >= 0 && nt < 0.5) {
+        const env = Math.min(1, (0.5 - nt) / 0.08);
+        sum += (1 - 4*Math.abs((freq*nt)%1 - 0.5)) * 0.18 * env;
+      }
+    }
+    return Math.max(-1, Math.min(1, sum));
+  }, 1.25));
+
+  // Success: 4 ascending sine notes + final held note
+  sounds.success = new Audio(_makeWav(t => {
+    const notes = [[523,0,0.18,0.3],[659,0.12,0.18,0.3],[784,0.24,0.18,0.3],[1047,0.36,0.18,0.3],[1047,0.5,0.35,0.25]];
+    let sum = 0;
+    for (const [freq, start, dur, vol] of notes) {
+      const nt = t - start;
+      if (nt >= 0 && nt < dur) {
+        sum += Math.sin(2*Math.PI*freq*nt) * vol * Math.min(1, (dur-nt)/0.05);
+      }
+    }
+    return Math.max(-1, Math.min(1, sum));
+  }, 0.9));
+
+  return sounds;
 }
 
-// Each public play function self-retries via resume().then(self) if context is suspended
-function playSuccess() {
-  if (!audioCtx) return;
-  if (audioCtx.state !== 'running') {
-    audioCtx.resume().then(() => { audioReady = true; playSuccess(); }).catch(() => {});
-    return;
-  }
-  [523, 659, 784, 1047].forEach((f,i) => playTone(f, 'sine', 0.18, 0.3, i*0.12));
-  playTone(1047, 'sine', 0.35, 0.25, 0.5);
+function _play(name) {
+  if (!_sounds) { try { _sounds = _initSounds(); } catch(e) { _sounds = {}; } }
+  const a = _sounds[name];
+  if (!a) return;
+  a.currentTime = 0;
+  a.play().catch(() => {});
 }
 
-function playClick() {
-  if (!audioCtx) return;
-  if (audioCtx.state !== 'running') {
-    audioCtx.resume().then(() => { audioReady = true; playClick(); }).catch(() => {});
-    return;
-  }
-  playTone(600, 'square', 0.05, 0.15);
-}
+function activateAudio() { /* no-op: HTML Audio requires no AudioContext unlock */ }
+const audioReady = true;
 
-function playJump() {
-  if (!audioCtx) return;
-  if (audioCtx.state !== 'running') {
-    audioCtx.resume().then(() => { audioReady = true; playJump(); }).catch(() => {});
-    return;
-  }
-  const t = audioCtx.currentTime;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain); gain.connect(audioCtx.destination);
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(200, t);
-  osc.frequency.linearRampToValueAtTime(700, t + 0.3);
-  gain.gain.setValueAtTime(0.2, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-  osc.start(t); osc.stop(t + 0.45);
-}
-
-function playThrow() {
-  if (!audioCtx) return;
-  if (audioCtx.state !== 'running') {
-    audioCtx.resume().then(() => { audioReady = true; playThrow(); }).catch(() => {});
-    return;
-  }
-  const t = audioCtx.currentTime;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain); gain.connect(audioCtx.destination);
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(600, t);
-  osc.frequency.linearRampToValueAtTime(100, t + 0.5);
-  gain.gain.setValueAtTime(0.25, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-  osc.start(t); osc.stop(t + 0.65);
-}
-
-function playThink() {
-  if (!audioCtx) return;
-  if (audioCtx.state !== 'running') {
-    audioCtx.resume().then(() => { audioReady = true; playThink(); }).catch(() => {});
-    return;
-  }
-  [[261,0],[329,0.2],[392,0.4],[523,0.7]].forEach(([f,d]) =>
-    playTone(f, 'triangle', 0.5, 0.18, d));
-}
+function playSuccess() { _play('success'); }
+function playClick()   { _play('click'); }
+function playJump()    { _play('jump'); }
+function playThrow()   { _play('throw'); }
+function playThink()   { _play('think'); }
 
 function playSoundForVerb(anim) {
   if (anim === 'jump') playJump();

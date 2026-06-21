@@ -21,7 +21,7 @@ const VERBS = [
   { name:'גזירה',  boy:'גוזר',  girl:'גוזרת',  anim:'cut',   sound:'success', sentence: (g)=> g==='j' ? 'הילד גוזר' : 'הילדה גוזרת'  },
   { name:'זריקה',  boy:'זורק',  girl:'זורקת',  anim:'throw', sound:'throw',   sentence: (g)=> g==='j' ? 'הילד זורק' : 'הילדה זורקת'  },
   { name:'חשיבה',  boy:'חושב',  girl:'חושבת',  anim:'think', sound:'think',   sentence: (g)=> g==='j' ? 'הילד חושב' : 'הילדה חושבת'  },
-  { name:'ריצה',   boy:'רץ',    girl:'רצה',    anim:'run',   sound:'jump',    sentence: (g)=> g==='j' ? 'הילד רץ'   : 'הילדה רצה'    },
+  { name:'ריקוד',  boy:'רוקד',  girl:'רוקדת',  anim:'run',   sound:'jump',    sentence: (g)=> g==='j' ? 'הילד רוקד' : 'הילדה רוקדת'   },
 ];
 
 /* ============================================================
@@ -162,10 +162,10 @@ function triggerAnimation(char, verbAnim) {
   const svg = svgWrap.querySelector('svg');
 
   svg.classList.remove('anim-jump','anim-eat','anim-sit','anim-learn','anim-cut','anim-throw','anim-think','anim-run');
-  void svg.offsetWidth; // force reflow so re-adding the same class restarts the animation
+  void svg.offsetWidth;
   svg.classList.add('anim-' + verbAnim);
 
-  const dur = verbAnim === 'cut' ? 2300 : verbAnim === 'sit' ? 2600 : 1800;
+  const dur = verbAnim === 'cut' ? 2600 : verbAnim === 'sit' ? 2600 : 2000;
   const t = setTimeout(() => {
     svg.classList.remove('anim-' + verbAnim);
   }, dur);

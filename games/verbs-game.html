@@ -33,7 +33,7 @@
     <button class="verb-tab" onclick="selectVerb(4,event)"><span class="verb-emoji">✂️</span><span>גזירה</span></button>
     <button class="verb-tab" onclick="selectVerb(5,event)"><span class="verb-emoji">⚽</span><span>זריקה</span></button>
     <button class="verb-tab" onclick="selectVerb(6,event)"><span class="verb-emoji">💭</span><span>חשיבה</span></button>
-    <button class="verb-tab" onclick="selectVerb(7,event)"><span class="verb-emoji">🏃</span><span>ריצה</span></button>
+    <button class="verb-tab" onclick="selectVerb(7,event)"><span class="verb-emoji">💃</span><span>ריקוד</span></button>
   </div>
 </div>
 
@@ -50,7 +50,7 @@
       <div class="char-svg-wrap" id="j-svg-wrap">
         <svg viewBox="0 0 180 310" xmlns="http://www.w3.org/2000/svg" overflow="visible">
           <!-- CHAIR PROP (behind body) -->
-          <g class="j-chair" style="display:none">
+          <g class="j-chair">
             <rect x="28" y="233" width="124" height="10" rx="5" fill="#8B5E3C"/>
             <rect x="28" y="243" width="10" height="51" rx="5" fill="#A0522D"/>
             <rect x="142" y="243" width="10" height="51" rx="5" fill="#A0522D"/>
@@ -62,18 +62,20 @@
           <g class="char-group">
             <!-- LEGS -->
             <g class="j-lleg">
-              <rect x="58" y="218" width="30" height="72" rx="14" fill="#1e3a8a"/>
-              <ellipse cx="73" cy="294" rx="20" ry="9" fill="#374151"/>
+              <rect x="57" y="218" width="32" height="72" rx="14" fill="#1e3a8a"/>
+              <rect x="46" y="278" width="48" height="18" rx="9" fill="#1a1a2e"/>
+              <rect x="50" y="282" width="20" height="3" rx="1.5" fill="white" opacity="0.5"/>
             </g>
             <g class="j-rleg">
-              <rect x="92" y="218" width="30" height="72" rx="14" fill="#1e3a8a"/>
-              <ellipse cx="107" cy="294" rx="20" ry="9" fill="#374151"/>
+              <rect x="91" y="218" width="32" height="72" rx="14" fill="#1e3a8a"/>
+              <rect x="86" y="278" width="48" height="18" rx="9" fill="#1a1a2e"/>
+              <rect x="90" y="282" width="20" height="3" rx="1.5" fill="white" opacity="0.5"/>
             </g>
 
             <!-- BODY -->
             <rect x="40" y="135" width="100" height="92" rx="22" fill="#3b82f6"/>
             <path d="M75 135 Q90 155 105 135" fill="#60a5fa"/>
-            <rect x="52" y="155" width="22" height="16" rx="5" fill="#2563eb" opacity="0.5"/>
+            <circle cx="90" cy="163" r="13" fill="#2563eb" opacity="0.55"/>
 
             <!-- LEFT ARM -->
             <g class="j-larm">
@@ -86,19 +88,19 @@
               <rect x="140" y="145" width="28" height="68" rx="13" fill="#3b82f6"/>
               <ellipse cx="154" cy="218" rx="14" ry="10" fill="#fde8c8"/>
               <!-- APPLE PROP -->
-              <g class="j-apple" style="display:none">
+              <g class="j-apple">
                 <circle cx="154" cy="205" r="16" fill="#ef4444"/>
                 <rect x="153" y="187" width="3" height="9" rx="2" fill="#7c3f00"/>
                 <path d="M156 188 Q165 180 168 188" stroke="#4ade80" stroke-width="3" fill="none" stroke-linecap="round"/>
               </g>
               <!-- BALL PROP -->
-              <g class="j-ball" style="display:none">
+              <g class="j-ball">
                 <circle cx="154" cy="208" r="14" fill="#f97316"/>
                 <path d="M142 208 Q154 198 166 208" stroke="white" stroke-width="2" fill="none"/>
                 <path d="M142 208 Q154 218 166 208" stroke="white" stroke-width="2" fill="none"/>
               </g>
               <!-- SCISSORS PROP -->
-              <g class="j-scissors" style="display:none">
+              <g class="j-scissors">
                 <g class="j-scissors-top">
                   <rect x="126" y="204" width="30" height="8" rx="4" fill="#94a3b8"/>
                   <circle cx="163" cy="199" r="9" fill="none" stroke="#94a3b8" stroke-width="5"/>
@@ -113,7 +115,7 @@
             </g>
 
             <!-- BOOK PROP -->
-            <g class="j-book" style="display:none">
+            <g class="j-book">
               <rect x="42" y="152" width="96" height="68" rx="8" fill="#dc2626"/>
               <rect x="45" y="155" width="43" height="62" rx="6" fill="#ef4444"/>
               <rect x="92" y="155" width="43" height="62" rx="6" fill="#fca5a5"/>
@@ -125,6 +127,8 @@
 
             <!-- NECK -->
             <rect x="80" y="120" width="20" height="18" rx="8" fill="#fde8c8"/>
+            <!-- Collar -->
+            <path d="M80 133 Q90 143 100 133" fill="white" opacity="0.8"/>
 
             <!-- HEAD -->
             <g id="j-head">
@@ -146,12 +150,18 @@
               <ellipse cx="90" cy="82" rx="5" ry="4" fill="#f0a070"/>
               <circle cx="87" cy="84" r="2" fill="#d4846a"/>
               <circle cx="93" cy="84" r="2" fill="#d4846a"/>
-              <path class="j-mouth" d="M74 98 Q90 112 106 98" stroke="#c0392b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <!-- Blush cheeks -->
+              <ellipse cx="58" cy="88" rx="13" ry="8" fill="#fca5a5" opacity="0.5"/>
+              <ellipse cx="122" cy="88" rx="13" ry="8" fill="#fca5a5" opacity="0.5"/>
+              <!-- Wider smile -->
+              <path class="j-mouth" d="M64 103 Q90 126 116 103" stroke="#c0392b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <!-- Hair highlight -->
+              <ellipse cx="80" cy="38" rx="18" ry="8" fill="white" opacity="0.15"/>
             </g>
           </g><!-- end char-group -->
 
           <!-- THOUGHT BUBBLE -->
-          <g class="j-thought" style="display:none; transform: translate(0, 0);">
+          <g class="j-thought">
             <circle cx="115" cy="55" r="6" fill="white" stroke="#94a3b8" stroke-width="2"/>
             <circle cx="128" cy="42" r="9" fill="white" stroke="#94a3b8" stroke-width="2"/>
             <circle cx="143" cy="26" r="13" fill="white" stroke="#94a3b8" stroke-width="2"/>
@@ -176,7 +186,7 @@
       <div class="char-svg-wrap" id="n-svg-wrap">
         <svg viewBox="0 0 180 310" xmlns="http://www.w3.org/2000/svg" overflow="visible">
           <!-- CHAIR PROP (behind body) -->
-          <g class="n-chair" style="display:none">
+          <g class="n-chair">
             <rect x="28" y="233" width="124" height="10" rx="5" fill="#8B5E3C"/>
             <rect x="28" y="243" width="10" height="51" rx="5" fill="#A0522D"/>
             <rect x="142" y="243" width="10" height="51" rx="5" fill="#A0522D"/>
@@ -188,17 +198,19 @@
           <g class="char-group">
             <!-- LEGS -->
             <g class="n-lleg">
-              <rect x="60" y="222" width="26" height="60" rx="12" fill="#fce7f3"/>
-              <ellipse cx="73" cy="285" rx="18" ry="8" fill="#f9a8d4"/>
+              <rect x="59" y="222" width="28" height="62" rx="14" fill="#fce7f3" stroke="#f9a8d4" stroke-width="2"/>
+              <rect x="50" y="272" width="44" height="16" rx="8" fill="#ec4899" stroke="#be185d" stroke-width="2"/>
+              <rect x="52" y="276" width="20" height="3" rx="1.5" fill="white" opacity="0.5"/>
             </g>
             <g class="n-rleg">
-              <rect x="94" y="222" width="26" height="60" rx="12" fill="#fce7f3"/>
-              <ellipse cx="107" cy="285" rx="18" ry="8" fill="#f9a8d4"/>
+              <rect x="93" y="222" width="28" height="62" rx="14" fill="#fce7f3" stroke="#f9a8d4" stroke-width="2"/>
+              <rect x="88" y="272" width="44" height="16" rx="8" fill="#ec4899" stroke="#be185d" stroke-width="2"/>
+              <rect x="90" y="276" width="20" height="3" rx="1.5" fill="white" opacity="0.5"/>
             </g>
 
             <!-- DRESS BODY -->
             <rect x="38" y="133" width="104" height="96" rx="22" fill="#ec4899"/>
-            <path d="M30 195 Q90 230 150 195 L155 225 Q90 265 25 225 Z" fill="#db2777"/>
+            <path d="M22 192 Q90 238 158 192 L162 226 Q90 274 18 226 Z" fill="#db2777" stroke="#be185d" stroke-width="1.5"/>
             <path d="M72 133 Q90 153 108 133" fill="#f9a8d4"/>
             <circle cx="90" cy="165" r="8" fill="#fbbf24" opacity="0.8"/>
             <circle cx="82" cy="157" r="5" fill="#f9a8d4"/>
@@ -217,19 +229,19 @@
               <rect x="142" y="145" width="28" height="68" rx="13" fill="#ec4899"/>
               <ellipse cx="156" cy="218" rx="14" ry="10" fill="#fde8c8"/>
               <!-- APPLE PROP -->
-              <g class="n-apple" style="display:none">
+              <g class="n-apple">
                 <circle cx="156" cy="205" r="16" fill="#ef4444"/>
                 <rect x="155" y="187" width="3" height="9" rx="2" fill="#7c3f00"/>
                 <path d="M158 188 Q167 180 170 188" stroke="#4ade80" stroke-width="3" fill="none" stroke-linecap="round"/>
               </g>
               <!-- BALL PROP -->
-              <g class="n-ball" style="display:none">
+              <g class="n-ball">
                 <circle cx="156" cy="208" r="14" fill="#f97316"/>
                 <path d="M144 208 Q156 198 168 208" stroke="white" stroke-width="2" fill="none"/>
                 <path d="M144 208 Q156 218 168 208" stroke="white" stroke-width="2" fill="none"/>
               </g>
               <!-- SCISSORS PROP -->
-              <g class="n-scissors" style="display:none">
+              <g class="n-scissors">
                 <g class="n-scissors-top">
                   <rect x="128" y="204" width="30" height="8" rx="4" fill="#94a3b8"/>
                   <circle cx="165" cy="199" r="9" fill="none" stroke="#94a3b8" stroke-width="5"/>
@@ -244,7 +256,7 @@
             </g>
 
             <!-- BOOK PROP -->
-            <g class="n-book" style="display:none">
+            <g class="n-book">
               <rect x="38" y="150" width="104" height="70" rx="8" fill="#7c3aed"/>
               <rect x="41" y="153" width="48" height="64" rx="6" fill="#8b5cf6"/>
               <rect x="93" y="153" width="46" height="64" rx="6" fill="#c4b5fd"/>
@@ -284,23 +296,30 @@
               <circle cx="104" cy="73" r="6.5" fill="#2d1b00"/>
               <circle cx="82" cy="70" r="2" fill="white"/>
               <circle cx="106" cy="70" r="2" fill="white"/>
-              <line x1="67" y1="62" x2="64" y2="57" stroke="#5c3d1e" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="73" y1="59" x2="71" y2="54" stroke="#5c3d1e" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="79" y1="59" x2="79" y2="54" stroke="#5c3d1e" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="101" y1="59" x2="101" y2="54" stroke="#5c3d1e" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="107" y1="59" x2="109" y2="54" stroke="#5c3d1e" stroke-width="1.5" stroke-linecap="round"/>
-              <line x1="113" y1="62" x2="116" y2="57" stroke="#5c3d1e" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- Left eyelashes -->
+              <line x1="70" y1="60" x2="67" y2="52" stroke="#3d2005" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="75" y1="59" x2="73" y2="51" stroke="#3d2005" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="80" y1="59" x2="80" y2="51" stroke="#3d2005" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="85" y1="60" x2="87" y2="52" stroke="#3d2005" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- Right eyelashes -->
+              <line x1="96" y1="60" x2="94" y2="52" stroke="#3d2005" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="101" y1="59" x2="101" y2="51" stroke="#3d2005" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="106" y1="59" x2="108" y2="51" stroke="#3d2005" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="111" y1="60" x2="114" y2="52" stroke="#3d2005" stroke-width="2.5" stroke-linecap="round"/>
               <ellipse cx="62" cy="88" rx="12" ry="7" fill="#fca5a5" opacity="0.5"/>
               <ellipse cx="118" cy="88" rx="12" ry="7" fill="#fca5a5" opacity="0.5"/>
               <ellipse cx="90" cy="85" rx="5" ry="4" fill="#f0a070"/>
               <circle cx="87" cy="87" r="2" fill="#d4846a"/>
               <circle cx="93" cy="87" r="2" fill="#d4846a"/>
-              <path class="n-mouth" d="M76 101 Q90 115 104 101" stroke="#c0392b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <!-- Wider smile -->
+              <path class="n-mouth" d="M64 103 Q90 126 116 103" stroke="#c0392b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <!-- Hair highlight -->
+              <ellipse cx="80" cy="38" rx="18" ry="8" fill="white" opacity="0.15"/>
             </g>
           </g><!-- end char-group -->
 
           <!-- THOUGHT BUBBLE -->
-          <g class="n-thought" style="display:none;">
+          <g class="n-thought">
             <circle cx="115" cy="55" r="6" fill="white" stroke="#94a3b8" stroke-width="2"/>
             <circle cx="128" cy="42" r="9" fill="white" stroke="#94a3b8" stroke-width="2"/>
             <circle cx="143" cy="26" r="13" fill="white" stroke="#94a3b8" stroke-width="2"/>

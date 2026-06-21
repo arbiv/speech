@@ -40,6 +40,19 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      - name: Generate animation GIFs
+        if: always() && github.event_name == 'pull_request'
+        run: |
+          sudo apt-get install -y imagemagick -qq 2>/dev/null || true
+          mkdir -p screenshots
+          for verb in jump eat sit learn cut throw think run; do
+            dir="screenshots/frames/${verb}"
+            if [ -d "$dir" ] && compgen -G "${dir}/frame-*.png" > /dev/null 2>&1; then
+              convert -delay 12 -loop 0 -layers Optimize \
+                "${dir}"/frame-*.png "screenshots/anim-${verb}.gif" 2>/dev/null || true
+            fi
+          done
+
       - name: Publish screenshots to branch
         if: always() && github.event_name == 'pull_request'
         run: |
@@ -51,6 +64,9 @@ jobs:
           mkdir -p /tmp/pr-screenshots
           if compgen -G "screenshots/*.png" > /dev/null 2>&1; then
             cp screenshots/*.png /tmp/pr-screenshots/
+          fi
+          if compgen -G "screenshots/*.gif" > /dev/null 2>&1; then
+            cp screenshots/*.gif /tmp/pr-screenshots/
           fi
 
           git config user.name "github-actions[bot]"
@@ -66,6 +82,9 @@ jobs:
           mkdir -p "pr-${PR_NUM}"
           if compgen -G "/tmp/pr-screenshots/*.png" > /dev/null 2>&1; then
             cp /tmp/pr-screenshots/*.png "pr-${PR_NUM}/"
+          fi
+          if compgen -G "/tmp/pr-screenshots/*.gif" > /dev/null 2>&1; then
+            cp /tmp/pr-screenshots/*.gif "pr-${PR_NUM}/"
           fi
 
           git add "pr-${PR_NUM}/"
@@ -101,6 +120,12 @@ jobs:
               .map(([label, file]) => `| ${label} | ![${label}](${base}/${file}) |`)
               .join('\n');
 
+            const verbs = ['jump','eat','sit','learn','cut','throw','think','run'];
+            const verbLabels = {jump:'קפיצה',eat:'אכילה',sit:'ישיבה',learn:'למידה',cut:'גזירה',throw:'זריקה',think:'חשיבה',run:'ריקוד'};
+            const gifRows = verbs
+              .map(v => `| ${verbLabels[v]} | ![${v}](${base}/anim-${v}.gif) |`)
+              .join('\n');
+
             const body = [
               `## CI ${passed ? '✅ Passing' : '❌ Failing'} — \`${sha}\``,
               '',
@@ -113,6 +138,12 @@ jobs:
               '| Screen | Preview |',
               '|--------|---------|',
               tableRows,
+              '',
+              '### Animation GIFs',
+              '',
+              '| Verb | Animation |',
+              '|------|-----------|',
+              gifRows,
             ].join('\n');
 
             const { data: comments } = await github.rest.issues.listComments({

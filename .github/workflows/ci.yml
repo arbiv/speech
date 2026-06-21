@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  test:
+    name: Tests & Screenshots
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run smoke tests
+        id: tests
+        run: npm test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Publish screenshots to branch
+        if: always() && github.event_name == 'pull_request'
+        run: |
+          PR_NUM="${{ github.event.pull_request.number }}"
+          SHORT_SHA="${{ github.sha }}"
+          SHORT_SHA="${SHORT_SHA:0:7}"
+
+          # Preserve screenshots before switching branches
+          mkdir -p /tmp/pr-screenshots
+          if compgen -G "screenshots/*.png" > /dev/null 2>&1; then
+            cp screenshots/*.png /tmp/pr-screenshots/
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git fetch origin screenshots --depth=1 2>/dev/null; then
+            git checkout -b screenshots origin/screenshots
+          else
+            git checkout --orphan screenshots
+            git rm -rf . --quiet 2>/dev/null || true
+          fi
+
+          mkdir -p "pr-${PR_NUM}"
+          if compgen -G "/tmp/pr-screenshots/*.png" > /dev/null 2>&1; then
+            cp /tmp/pr-screenshots/*.png "pr-${PR_NUM}/"
+          fi
+
+          git add "pr-${PR_NUM}/"
+          if ! git diff --cached --quiet; then
+            git commit -m "screenshots: PR #${PR_NUM} @ ${SHORT_SHA} [skip ci]"
+            git push origin screenshots || {
+              git fetch origin screenshots --depth=1
+              git rebase origin/screenshots
+              git push origin screenshots
+            }
+          fi
+
+      - name: Post PR comment
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNum = context.payload.pull_request.number;
+            const sha = context.sha.substring(0, 7);
+            const { owner, repo } = context.repo;
+            const passed = '${{ steps.tests.outcome }}' === 'success';
+            const runId = context.runId;
+            const reportUrl = `https://github.com/${owner}/${repo}/actions/runs/${runId}`;
+            const base = `https://raw.githubusercontent.com/${owner}/${repo}/screenshots/pr-${prNum}`;
+
+            const screens = [
+              ['Landing page', 'index.png'],
+              ['Verbs game', 'verbs-game.png'],
+              ['Verb selected (אכילה)', 'verb-eating.png'],
+            ];
+
+            const tableRows = screens
+              .map(([label, file]) => `| ${label} | ![${label}](${base}/${file}) |`)
+              .join('\n');
+
+            const body = [
+              `## CI ${passed ? '✅ Passing' : '❌ Failing'} — \`${sha}\``,
+              '',
+              passed
+                ? 'All smoke tests passed.'
+                : `Some tests failed — [view full report](${reportUrl}).`,
+              '',
+              '### UI Screenshots',
+              '',
+              '| Screen | Preview |',
+              '|--------|---------|',
+              tableRows,
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number: prNum,
+            });
+            const existing = comments.find(
+              c => c.user.type === 'Bot' && c.body.startsWith('## CI ')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner, repo, comment_id: existing.id, body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: prNum, body,
+              });
+            }

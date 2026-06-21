@@ -205,8 +205,8 @@ function triggerSuccess(char) {
   card.classList.remove('highlighted');
 
   triggerAnimation(char, v.anim);
-  playSoundForVerb(v.anim);
   speak(v.sentence(char), 0.8);
+  playSoundForVerb(v.anim);
   spawnParticles(card);
 
   streakCount++;
@@ -469,6 +469,7 @@ function spawnParticles(container) {
    ============================================================ */
 window.addEventListener('DOMContentLoaded', () => {
   initVoice();
+  try { _sounds = _initSounds(); } catch(e) { _sounds = {}; }
   const v = VERBS[0];
   document.getElementById('j-word').textContent = v.boy;
   document.getElementById('n-word').textContent = v.girl;

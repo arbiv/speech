@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>משחק ריבוי זכר</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap');
+
+/* ── Reset & full-viewport lock (works inside iframes too) ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+    font-family: 'Rubik', sans-serif;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    background: linear-gradient(145deg, #dbeafe 0%, #d1fae5 100%);
+}
+
+/* ── App shell: fixed overlay so it always fills viewport ── */
+#app {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+/* ── Header ── */
+#app-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    padding: 10px 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border: 1px solid rgba(186,230,253,0.6);
+}
+
+/* ── Progress strip ── */
+#progress-strip {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 4px;
+}
+#progress-track {
+    flex: 1;
+    height: 10px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 99px;
+    overflow: hidden;
+}
+#progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #34d399);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 10%;
+}
+
+/* ── Game prompt banner ── */
+#game-prompt {
+    flex-shrink: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #fef9c3;
+    border: 2px solid #fde047;
+    border-radius: 16px;
+    padding: 10px 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(250,204,21,0.3);
+}
+#game-prompt.visible { display: flex; }
+
+/* ── Cards area ── */
+#cards-area {
+    flex: 1;
+    min-height: 0;        /* critical: allows flex children to shrink */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* ── Individual card ── */
+.game-card {
+    border-radius: 24px;
+    padding: 14px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    position: relative;
+    border: 3px solid transparent;
+    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                border-color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+    min-height: 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+.game-card:active { transform: scale(0.95); }
+
+#card-singular {
+    background: linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+#card-plural {
+    background: linear-gradient(160deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+/* Badge top corner */
+.card-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 3px 10px;
+    border-radius: 99px;
+    letter-spacing: 0.02em;
+}
+#card-singular .card-badge { background: #bae6fd; color: #0369a1; }
+#card-plural   .card-badge { background: #bbf7d0; color: #15803d; }
+
+/* Emoji zone */
+.emoji-zone {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+}
+#emoji-singular {
+    font-size: clamp(3.5rem, 14vw, 7rem);
+    line-height: 1;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+
+/* Plural 2×2 grid */
+#emoji-plural {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    align-items: center;
+    justify-items: center;
+}
+#emoji-plural span {
+    font-size: clamp(1.6rem, 5.5vw, 3.2rem);
+    line-height: 1;
+    display: inline-block;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+    transition: transform 0.2s;
+}
+#emoji-plural span:hover { transform: scale(1.15) !important; }
+
+/* Word + listen hint */
+.word-section { text-align: center; flex-shrink: 0; margin-top: 8px; }
+.word-text { font-weight: 900; line-height: 1; font-size: clamp(1.6rem, 5vw, 2.6rem); }
+#card-singular .word-text { color: #0c4a6e; }
+#card-plural   .word-text { color: #14532d; }
+.listen-hint {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+}
+#card-singular .listen-hint { background: #e0f2fe; color: #0369a1; }
+#card-plural   .listen-hint { background: #dcfce7; color: #15803d; }
+
+/* ── Highlight states ── */
+.card-sky     { border-color: #38bdf8 !important; box-shadow: 0 0 0 4px rgba(56,189,248,0.25) !important; }
+.card-emerald { border-color: #34d399 !important; box-shadow: 0 0 0 4px rgba(52,211,153,0.25) !important; }
+.card-red     { border-color: #f87171 !important; box-shadow: 0 0 0 4px rgba(248,113,113,0.25) !important; }
+
+/* ── Footer nav ── */
+#app-footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 18px;
+    padding: 10px 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* ── Nav buttons ── */
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    padding: 10px 20px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    flex-shrink: 0;
+}
+.nav-btn:active { transform: scale(0.93); }
+.nav-btn-prev { background: #f1f5f9; color: #475569; }
+.nav-btn-next { background: linear-gradient(135deg, #059669, #0d9488); color: white; box-shadow: 0 4px 12px rgba(5,150,105,0.3); }
+
+/* ── Mode buttons ── */
+.mode-btn {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 7px 14px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+.mode-btn:active { transform: scale(0.93); }
+.mode-active-learn { background: #0284c7; color: white; box-shadow: 0 2px 8px rgba(2,132,199,0.35); }
+.mode-active-game  { background: #059669; color: white; box-shadow: 0 2px 8px rgba(5,150,105,0.35); }
+.mode-inactive { background: white; color: #6b7280; border: 1.5px solid #e5e7eb; }
+
+/* ── Feedback toast ── */
+#feedback-alert {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 28px;
+    padding: 28px 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    z-index: 100;
+    text-align: center;
+    width: min(340px, 88vw);
+    border: 3px solid #34d399;
+    display: none;
+    animation: pop-in 0.25s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+#feedback-alert.visible { display: block; }
+@keyframes pop-in {
+    from { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
+    to   { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+}
+
+/* ── Welcome overlay ── */
+#welcome-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(7,32,69,0.82);
+    backdrop-filter: blur(14px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+#welcome-card {
+    background: white;
+    border-radius: 28px;
+    padding: 36px 28px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    border: 3px solid #38bdf8;
+}
+#start-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #10b981, #0d9488);
+    color: white;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    padding: 18px 24px;
+    border-radius: 18px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(16,185,129,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: transform 0.15s;
+    margin-top: 20px;
+}
+#start-btn:active { transform: scale(0.96); }
+
+/* ── Gentle pulse on prompt ── */
+@keyframes gentle-pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.025); }
+}
+#game-prompt.visible { animation: gentle-pulse 2.4s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<!-- ══ WELCOME OVERLAY ══ -->
+<div id="welcome-overlay">
+    <div id="welcome-card">
+        <div style="font-size:4.5rem;margin-bottom:12px;animation:bounce 1s infinite alternate;">🎈</div>
+        <h1 style="font-size:2rem;font-weight:900;color:#0c4a6e;margin-bottom:6px;">משחק ריבוי זכר</h1>
+        <p style="color:#6b7280;font-size:1.05rem;font-weight:500;">בואו נלמד יחד יחיד ורבים!</p>
+        <button id="start-btn" onclick="startGame()">
+            <span>להתחלת המשחק</span>
+            <span style="font-size:1.5rem;">🔊</span>
+        </button>
+        <p style="font-size:11px;color:#9ca3af;margin-top:14px;">לחיצה על הכפתור תפעיל את השמע באייפד / טאבלט</p>
+    </div>
+</div>
+
+<!-- ══ APP SHELL ══ -->
+<div id="app">
+
+    <!-- Header -->
+    <header id="app-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:2rem;">🗣️</span>
+            <div>
+                <div style="font-size:1.15rem;font-weight:900;color:#0c4a6e;line-height:1.1;">משחק ריבוי: זכר</div>
+                <div style="font-size:11px;font-weight:600;color:#059669;">למידת יחיד ורבים לגילאי 3+</div>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <button id="btn-learn-mode" class="mode-btn mode-active-learn" onclick="setMode('learn')">📖 למידה</button>
+            <button id="btn-game-mode"  class="mode-btn mode-inactive"      onclick="setMode('game')">🎮 משחק</button>
+            <button id="audio-toggle-btn" onclick="toggleSound()"
+                style="font-size:1.2rem;padding:6px 8px;background:white;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;">
+                🔊
+            </button>
+        </div>
+    </header>
+
+    <!-- Progress strip -->
+    <div id="progress-strip">
+        <span id="progress-text" style="font-size:12px;font-weight:700;color:#0369a1;white-space:nowrap;">פריט 1 מתוך 10</span>
+        <div id="progress-track"><div id="progress-bar"></div></div>
+    </div>
+
+    <!-- Game prompt -->
+    <div id="game-prompt" onclick="playCurrentPromptSpeech()">
+        <span style="font-size:1.3rem;">🔊</span>
+        <span id="prompt-text-display" style="font-size:clamp(1rem,3.5vw,1.4rem);font-weight:800;color:#713f12;"></span>
+    </div>
+
+    <!-- Cards -->
+    <div id="cards-area">
+
+        <div id="card-singular" class="game-card" onclick="handleCardClick('singular')">
+            <span class="card-badge">יָחִיד (1)</span>
+            <div class="emoji-zone">
+                <span id="emoji-singular">⚽</span>
+            </div>
+            <div class="word-section">
+                <div id="word-singular" class="word-text">כַּדּוּר</div>
+                <span class="listen-hint">🗣️ לחץ לשמיעה</span>
+            </div>
+        </div>
+
+        <div id="card-plural" class="game-card" onclick="handleCardClick('plural')">
+            <span class="card-badge">רַבִּים (הרבה)</span>
+            <div class="emoji-zone">
+                <div id="emoji-plural"></div>
+            </div>
+            <div class="word-section">
+                <div id="word-plural" class="word-text">כַּדּוּרִים</div>
+                <span class="listen-hint">🗣️ לחץ לשמיעה</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer nav -->
+    <footer id="app-footer">
+        <button class="nav-btn nav-btn-prev" onclick="navigateItem(-1)">➡️ הקודם</button>
+        <span style="font-size:11px;color:#9ca3af;text-align:center;line-height:1.4;display:none;" class="md:block">
+            טיפ: עודדי את הילד לחזור על סיומת <b>"-ִים"</b>
+        </span>
+        <button class="nav-btn nav-btn-next" onclick="navigateItem(1)">הבא ⬅️</button>
+    </footer>
+
+</div>
+
+<!-- Feedback toast -->
+<div id="feedback-alert">
+    <div style="font-size:3.5rem;margin-bottom:8px;">🎉</div>
+    <div id="feedback-title" style="font-size:1.5rem;font-weight:900;color:#059669;">כל הכבוד!</div>
+    <div id="feedback-desc"  style="color:#6b7280;margin-top:6px;font-weight:500;font-size:1rem;"></div>
+</div>
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentMode    = 'learn';
+let currentIndex   = 0;
+let soundEnabled   = true;
+let gameTargetType = 'singular';
+
+/* ============================================================
+   VOCABULARY
+   ============================================================ */
+const vocabulary = [
+    { id:'ball',       emoji:'⚽', singularText:'כַּדּוּר',   pluralText:'כַּדּוּרִים',  singularSpeech:'כַּדּוּר',    pluralSpeech:'כַּדּוּרִים'  },
+    { id:'star',       emoji:'⭐', singularText:'כּוֹכָב',    pluralText:'כּוֹכָבִים',   singularSpeech:'כּוֹכָב',     pluralSpeech:'כּוֹכָבִים'   },
+    { id:'monkey',     emoji:'🐒', singularText:'קוֹף',      pluralText:'קוֹפִים',      singularSpeech:'קוֹף',        pluralSpeech:'קוֹפִים'      },
+    { id:'horse',      emoji:'🐎', singularText:'סוּס',      pluralText:'סוּסִים',      singularSpeech:'סוּס',        pluralSpeech:'סוּסִים'      },
+    { id:'elephant',   emoji:'🐘', singularText:'פִּיל',     pluralText:'פִּילִים',     singularSpeech:'פִּיל',       pluralSpeech:'פִּילִים'     },
+    { id:'orange',     emoji:'🍊', singularText:'תַּפּוּז',  pluralText:'תַּפּוּזִים',  singularSpeech:'תַּפּוּז',    pluralSpeech:'תַּפּוּזִים'  },
+    { id:'strawberry', emoji:'🍓', singularText:'תּוּת',     pluralText:'תּוּתִים',     singularSpeech:'תּוּת',       pluralSpeech:'תּוּתִים'     },
+    { id:'tree',       emoji:'🌳', singularText:'עֵץ',       pluralText:'עֵצִים',       singularSpeech:'עֵץ',         pluralSpeech:'עֵצִים'       },
+    { id:'trashbin',   emoji:'🗑️', singularText:'פַּח',      pluralText:'פַּחִים',      singularSpeech:'פַּח',        pluralSpeech:'פַּחִים'      },
+    { id:'cat',        emoji:'🐱', singularText:'חָתוּל',    pluralText:'חֲתוּלִים',    singularSpeech:'חַתּוּל',     pluralSpeech:'חַתּוּלִים'   },
+];
+
+/* ============================================================
+   AUDIO — HTML Audio + inline WAV generation (iPad-safe)
+   ============================================================ */
+let _sounds = null;
+
+function _makeWav(fn, dur) {
+    const SR = 22050, n = Math.floor(SR * dur);
+    const ab = new ArrayBuffer(44 + n * 2), dv = new DataView(ab);
+    const ws = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
+    ws(0,'RIFF'); dv.setUint32(4, 36+n*2, true); ws(8,'WAVE'); ws(12,'fmt ');
+    dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,1,true);
+    dv.setUint32(24,SR,true); dv.setUint32(28,SR*2,true);
+    dv.setUint16(32,2,true);  dv.setUint16(34,16,true);
+    ws(36,'data'); dv.setUint32(40, n*2, true);
+    for (let i = 0; i < n; i++)
+        dv.setInt16(44+i*2, Math.round(Math.max(-1,Math.min(1,fn(i/SR)))*32767), true);
+    const bytes = new Uint8Array(ab);
+    let b = '';
+    for (let i = 0; i < bytes.length; i++) b += String.fromCharCode(bytes[i]);
+    return 'data:audio/wav;base64,' + btoa(b);
+}
+
+function _initSounds() {
+    if (_sounds) return;
+    const SR = 22050, s = {};
+
+    s.click = new Audio(_makeWav(t => {
+        if (t > 0.05) return 0;
+        return (Math.sin(2*Math.PI*600*t) > 0 ? 1 : -1) * 0.15 * (1 - t/0.05);
+    }, 0.1));
+
+    s.success = new Audio(_makeWav(t => {
+        const notes = [[523,0,0.18,0.3],[659,0.12,0.18,0.3],[784,0.24,0.18,0.3],[1047,0.36,0.35,0.28]];
+        let sum = 0;
+        for (const [freq, start, dur, vol] of notes) {
+            const nt = t - start;
+            if (nt >= 0 && nt < dur) sum += Math.sin(2*Math.PI*freq*nt) * vol * Math.min(1,(dur-nt)/0.05);
+        }
+        return Math.max(-1, Math.min(1, sum));
+    }, 0.9));
+
+    let ph = 0;
+    s.error = new Audio(_makeWav(t => {
+        const freq = 300 - 150*Math.min(1, t/0.35);
+        ph += freq/SR;
+        return t > 0.4 ? 0 : (2*(ph%1)-1)*0.25*Math.max(0,1-t/0.35);
+    }, 0.45));
+
+    s.nav = new Audio(_makeWav(t => {
+        if (t > 0.12) return 0;
+        return Math.sin(2*Math.PI*(400+300*t/0.12)*t) * 0.18 * (1-t/0.12);
+    }, 0.15));
+
+    _sounds = s;
+}
+
+function _play(name) {
+    if (!soundEnabled) return;
+    _initSounds();
+    try { const a = _sounds[name]; if (!a) return; a.currentTime = 0; a.play().catch(()=>{}); } catch(e) {}
+}
+
+/* ============================================================
+   SPEECH — fresh getVoices() per call (iPad fix)
+   ============================================================ */
+function speak(text, rate = 0.8) {
+    if (!soundEnabled || !('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const voices = speechSynthesis.getVoices();
+    const hv = voices.find(v => v.lang === 'he-IL' || v.lang === 'he')
+             || voices.find(v => v.lang.startsWith('he'))
+             || null;
+    if (hv) u.voice = hv;
+    u.lang = 'he-IL'; u.rate = rate; u.pitch = 1.1; u.volume = 1;
+    speechSynthesis.speak(u);
+}
+
+if ('speechSynthesis' in window) {
+    speechSynthesis.getVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined)
+        speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+
+/* ============================================================
+   BOOTSTRAP
+   ============================================================ */
+function startGame() {
+    _initSounds();
+    speak(' ');
+    document.getElementById('welcome-overlay').style.display = 'none';
+    setTimeout(() => { _play('success'); speak('שלום! בוא נשחק!'); }, 300);
+    renderActiveItem();
+}
+
+/* ============================================================
+   MODE
+   ============================================================ */
+function setMode(mode) {
+    _play('click');
+    currentMode = mode;
+    const learnBtn = document.getElementById('btn-learn-mode');
+    const gameBtn  = document.getElementById('btn-game-mode');
+    const prompt   = document.getElementById('game-prompt');
+    resetCardStyles();
+    if (mode === 'learn') {
+        learnBtn.className = 'mode-btn mode-active-learn';
+        gameBtn.className  = 'mode-btn mode-inactive';
+        prompt.classList.remove('visible');
+        speak('בוא נלמד מילים!');
+    } else {
+        gameBtn.className  = 'mode-btn mode-active-game';
+        learnBtn.className = 'mode-btn mode-inactive';
+        prompt.classList.add('visible');
+        setupGameQuestion();
+    }
+    renderActiveItem();
+}
+
+/* ============================================================
+   GAME QUESTION
+   ============================================================ */
+function setupGameQuestion() {
+    gameTargetType = Math.random() > 0.5 ? 'singular' : 'plural';
+    const item = vocabulary[currentIndex];
+    const el   = document.getElementById('prompt-text-display');
+    if (gameTargetType === 'singular') {
+        el.innerHTML = `אֵיפֹה הַ<span style="text-decoration:underline;text-decoration-style:wavy;text-decoration-color:#38bdf8;font-weight:900;">${item.singularText}</span>?`;
+    } else {
+        el.innerHTML = `אֵיפֹה הַ<span style="text-decoration:underline;text-decoration-style:wavy;text-decoration-color:#34d399;font-weight:900;">${item.pluralText}</span>?`;
+    }
+    setTimeout(() => playCurrentPromptSpeech(), 300);
+}
+
+function playCurrentPromptSpeech() {
+    const item = vocabulary[currentIndex];
+    speak(`איפה ה${gameTargetType === 'singular' ? item.singularSpeech : item.pluralSpeech}?`);
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderActiveItem() {
+    const item = vocabulary[currentIndex];
+
+    document.getElementById('word-singular').innerText  = item.singularText;
+    document.getElementById('emoji-singular').textContent = item.emoji;
+
+    document.getElementById('word-plural').innerText = item.pluralText;
+    const pc = document.getElementById('emoji-plural');
+    pc.innerHTML = '';
+    const rotations = [-14, 9, -7, 13];
+    for (let i = 0; i < 4; i++) {
+        const span = document.createElement('span');
+        span.textContent = item.emoji;
+        span.style.transform = `rotate(${rotations[i]}deg)`;
+        pc.appendChild(span);
+    }
+
+    const pct = ((currentIndex + 1) / vocabulary.length) * 100;
+    document.getElementById('progress-bar').style.width  = `${pct}%`;
+    document.getElementById('progress-text').innerText   = `פריט ${currentIndex + 1} מתוך ${vocabulary.length}`;
+
+    resetCardStyles();
+
+    const overlayGone = document.getElementById('welcome-overlay').style.display === 'none';
+    if (currentMode === 'learn' && overlayGone) {
+        setTimeout(() => speak(item.singularSpeech), 400);
+    }
+}
+
+/* ============================================================
+   CARD CLICKS
+   ============================================================ */
+function handleCardClick(clickedType) {
+    _initSounds();
+    const item = vocabulary[currentIndex];
+    if (currentMode === 'learn') {
+        _play('click');
+        highlightCard(clickedType === 'singular' ? 'singular' : 'plural',
+                      clickedType === 'singular' ? 'sky' : 'emerald');
+        speak(clickedType === 'singular' ? item.singularSpeech : item.pluralSpeech);
+    } else {
+        if (clickedType === gameTargetType) {
+            _play('success');
+            highlightCard(clickedType, 'emerald');
+            confetti({ particleCount: 90, spread: 65, origin: { y: 0.7 } });
+            showToast('נכון מאוד! 🎉', clickedType === 'singular' ? item.singularText : item.pluralText);
+            speak(`כל הכבוד! ${clickedType === 'singular' ? item.singularSpeech : item.pluralSpeech}`);
+            setTimeout(() => navigateItem(1), 2200);
+        } else {
+            _play('error');
+            highlightCard(clickedType, 'red');
+            speak('לא נורא, נסה שוב');
+            const card = document.getElementById(`card-${clickedType}`);
+            card.style.animation = 'none';
+            requestAnimationFrame(() => {
+                card.style.animation = 'shake 0.4s ease';
+            });
+        }
+    }
+}
+
+function highlightCard(type, color) {
+    resetCardStyles();
+    const card = document.getElementById(`card-${type}`);
+    if      (color === 'sky')     card.classList.add('card-sky');
+    else if (color === 'emerald') card.classList.add('card-emerald');
+    else if (color === 'red')     card.classList.add('card-red');
+}
+
+function resetCardStyles() {
+    document.getElementById('card-singular').classList.remove('card-sky','card-emerald','card-red');
+    document.getElementById('card-plural').classList.remove('card-sky','card-emerald','card-red');
+}
+
+function showToast(title, desc) {
+    const toast = document.getElementById('feedback-alert');
+    document.getElementById('feedback-title').innerText = title;
+    document.getElementById('feedback-desc').innerText  = desc;
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), 1900);
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function navigateItem(direction) {
+    _play('nav');
+    currentIndex += direction;
+    if (currentIndex >= vocabulary.length) {
+        currentIndex = 0;
+        confetti({ particleCount: 160, spread: 90, origin: { y: 0.5 } });
+        speak('איזה יופי! סיימנו את כל המילים!');
+    } else if (currentIndex < 0) {
+        currentIndex = vocabulary.length - 1;
+    }
+    renderActiveItem();
+    if (currentMode === 'game') setupGameQuestion();
+}
+
+/* ============================================================
+   SOUND TOGGLE
+   ============================================================ */
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    const btn = document.getElementById('audio-toggle-btn');
+    btn.textContent = soundEnabled ? '🔊' : '🔇';
+    btn.style.background = soundEnabled ? 'white' : '#fee2e2';
+    if (soundEnabled) speak('קול מופעל');
+}
+
+/* ============================================================
+   SHAKE KEYFRAME (injected at runtime to avoid CSS duplication)
+   ============================================================ */
+const styleEl = document.createElement('style');
+styleEl.textContent = `
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-6px)}
+  80%{transform:translateX(6px)}
+}
+@keyframes bounce {
+  from{transform:translateY(0)}
+  to{transform:translateY(-12px)}
+}`;
+document.head.appendChild(styleEl);
+
+/* ============================================================
+   INIT
+   ============================================================ */
+window.onload = () => renderActiveItem();
+</script>
+</body>
+</html>

@@ -33,8 +33,8 @@ test.describe('Verbs game', () => {
   test('clicking a verb tab updates the displayed words', async ({ page }) => {
     await page.locator('.verb-tab').nth(1).click();
     await expect(page.locator('.verb-tab').nth(1)).toHaveClass(/active/);
-    await expect(page.locator('#j-word')).toContainText('אוכל');
-    await expect(page.locator('#n-word')).toContainText('אוכלת');
+    await expect(page.locator('#j-word')).toContainText('אוֹכֵל');
+    await expect(page.locator('#n-word')).toContainText('אוֹכֶלֶת');
     await page.screenshot({ path: 'screenshots/verb-eating.png', fullPage: true });
   });
 

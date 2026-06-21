@@ -15,7 +15,7 @@ let isListening = false;
    ============================================================ */
 const VERBS = [
   { name:'קפיצה',  boy:'קופץ',  girl:'קופצת',  anim:'jump',  sound:'jump',    sentence: (g)=> g==='j' ? 'הילד קופץ' : 'הילדה קופצת'  },
-  { name:'אכילה',  boy:'אוכל',  girl:'אוכלת',  anim:'eat',   sound:'success', sentence: (g)=> g==='j' ? 'הילד אוכל' : 'הילדה אוכלת'  },
+  { name:'אכילה',  boy:'אוֹכֵל',  girl:'אוֹכֶלֶת',  anim:'eat',   sound:'success', sentence: (g)=> g==='j' ? 'הילד אוֹכֵל' : 'הילדה אוֹכֶלֶת'  },
   { name:'ישיבה',  boy:'יושב',  girl:'יושבת',  anim:'sit',   sound:'success', sentence: (g)=> g==='j' ? 'הילד יושב' : 'הילדה יושבת'  },
   { name:'למידה',  boy:'לומד',  girl:'לומדת',  anim:'learn', sound:'success', sentence: (g)=> g==='j' ? 'הילד לומד' : 'הילדה לומדת'  },
   { name:'גזירה',  boy:'גוזר',  girl:'גוזרת',  anim:'cut',   sound:'success', sentence: (g)=> g==='j' ? 'הילד גוזר' : 'הילדה גוזרת'  },

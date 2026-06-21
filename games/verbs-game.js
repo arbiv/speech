@@ -158,7 +158,6 @@ function speak(text, rate=0.8) {
 function speakWord(char, evt) {
   if (evt) { evt.stopPropagation(); }
   activateAudio();
-  playClick();
   const v = VERBS[currentVerbIndex];
   speak(char === 'j' ? v.boy : v.girl);
 }
@@ -206,7 +205,6 @@ function triggerSuccess(char) {
 
   triggerAnimation(char, v.anim);
   speak(v.sentence(char), 0.8);
-  playSoundForVerb(v.anim);
   spawnParticles(card);
 
   streakCount++;
@@ -221,7 +219,6 @@ function triggerSuccess(char) {
 function handleCardClick(char, evt) {
   if (evt) evt.stopPropagation();
   activateAudio();
-  playClick();
 
   if (currentMode === 'click') {
     triggerSuccess(char);

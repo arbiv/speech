@@ -121,7 +121,7 @@ jobs:
               .join('\n');
 
             const verbs = ['jump','eat','sit','learn','cut','throw','think','run'];
-            const verbLabels = {jump:'קפיצה',eat:'אכילה',sit:'ישיבה',learn:'למידה',cut:'גזירה',throw:'זריקה',think:'חשיבה',run:'ריצה'};
+            const verbLabels = {jump:'קפיצה',eat:'אכילה',sit:'ישיבה',learn:'למידה',cut:'גזירה',throw:'זריקה',think:'חשיבה',run:'ריקוד'};
             const gifRows = verbs
               .map(v => `| ${verbLabels[v]} | ![${v}](${base}/anim-${v}.gif) |`)
               .join('\n');

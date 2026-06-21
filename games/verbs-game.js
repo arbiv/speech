@@ -233,7 +233,6 @@ function handleCardClick(char, evt) {
 function selectVerb(index, evt) {
   if (evt) evt.stopPropagation();
   activateAudio();
-  playClick();
   currentVerbIndex = index;
 
   document.querySelectorAll('.verb-tab').forEach((t,i) => {
@@ -262,7 +261,6 @@ function resetAnimState() {
 function resetAll(evt) {
   if (evt) evt.stopPropagation();
   activateAudio();
-  playClick();
   resetAnimState();
   clearTimers();
 }
@@ -278,7 +276,6 @@ const MODE_HINTS = {
 function selectMode(mode, evt) {
   if (evt) evt.stopPropagation();
   activateAudio();
-  playClick();
   currentMode = mode;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('mode-' + mode).classList.add('active');

@@ -264,42 +264,35 @@ footer {
   66%     { transform: rotate(-15deg); }
 }
 
-/* ── EAT ──────────────────────────────────────────────────────── */
-.anim-eat .j-apple,.anim-eat .n-apple { display: block; }
-.anim-eat .j-rarm,.anim-eat .n-rarm {
-  animation: eatRArm 2.2s cubic-bezier(0.34,1.56,0.64,1) forwards;
+/* ── LAUGH ────────────────────────────────────────────────────── */
+.anim-laugh .char-group {
+  animation: laughBody 0.25s ease-in-out 8 both;
 }
-.anim-eat .j-larm,.anim-eat .n-larm {
-  animation: eatLArm 2.2s ease-out forwards;
+.anim-laugh .j-larm,.anim-laugh .n-larm {
+  animation: laughLArm 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.05s forwards;
 }
-.anim-eat .j-mouth,.anim-eat .n-mouth {
-  animation: eatMouth 0.38s ease-in-out 4 0.65s both;
+.anim-laugh .j-rarm,.anim-laugh .n-rarm {
+  animation: laughRArm 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.05s forwards;
 }
-.anim-eat .char-group {
-  animation: eatBody 2.2s ease-out forwards;
+.anim-laugh .j-mouth,.anim-laugh .n-mouth {
+  animation: laughMouth 0.25s ease-in-out 8 both;
 }
-@keyframes eatRArm {
-  0%   { transform: rotate(0deg); }
-  18%  { transform: rotate(-95deg); }
-  82%  { transform: rotate(-90deg); }
-  100% { transform: rotate(0deg); }
+@keyframes laughBody {
+  0%,100% { transform: translateY(0)   rotate(0deg); }
+  25%     { transform: translateY(-10px) rotate(-4deg); }
+  75%     { transform: translateY(-10px) rotate(4deg); }
 }
-@keyframes eatLArm {
-  0%,100% { transform: rotate(0deg); }
-  18%     { transform: rotate(18deg); }
-  82%     { transform: rotate(14deg); }
+@keyframes laughLArm {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(32deg); }
 }
-@keyframes eatBody {
-  0%,100% { transform: translateY(0); }
-  52%     { transform: translateY(-4px); }
-  60%     { transform: translateY(-7px); }
-  68%     { transform: translateY(-4px); }
-  76%     { transform: translateY(-7px); }
-  84%     { transform: translateY(0); }
+@keyframes laughRArm {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-32deg); }
 }
-@keyframes eatMouth {
+@keyframes laughMouth {
   0%,100% { transform: scaleY(1); }
-  50%     { transform: scaleY(0.18) translateY(6px); }
+  50%     { transform: scaleY(1.7) translateY(-4px); }
 }
 
 /* ── SIT ──────────────────────────────────────────────────────── */

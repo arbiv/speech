@@ -164,7 +164,7 @@ function triggerAnimation(char, verbAnim) {
   void svg.offsetWidth; // force reflow so re-adding the same class restarts the animation
   svg.classList.add('anim-' + verbAnim);
 
-  const dur = verbAnim === 'cut' ? 2300 : verbAnim === 'sit' ? 2300 : 1800;
+  const dur = verbAnim === 'cut' ? 2300 : verbAnim === 'sit' ? 2600 : 1800;
   const t = setTimeout(() => {
     svg.classList.remove('anim-' + verbAnim);
   }, dur);

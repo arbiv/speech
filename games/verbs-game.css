@@ -5,7 +5,7 @@
 
 body {
   font-family: 'Rubik', 'Arial', sans-serif;
-  background: linear-gradient(135deg, #dbeafe 0%, #fce7f3 50%, #dcfce7 100%);
+  background: linear-gradient(145deg, #eef4ff 0%, #fdf0fb 50%, #edfff5 100%);
   min-height: 100vh;
   overflow-x: hidden;
   user-select: none;
@@ -205,27 +205,38 @@ footer {
 
 /* SIT */
 .anim-sit .char-group {
-  animation: doSit 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: doSit 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 .anim-sit .j-chair, .anim-sit .n-chair { display: block !important; }
-.anim-sit .j-lleg, .anim-sit .n-lleg,
+/* Left and right legs spread symmetrically outward */
+.anim-sit .j-lleg, .anim-sit .n-lleg {
+  animation: legSitLeft 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+}
 .anim-sit .j-rleg, .anim-sit .n-rleg {
-  animation: legSit 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: legSitRight 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-box: fill-box;
   transform-origin: 50% 0%;
 }
 .anim-sit .j-larm, .anim-sit .n-larm,
 .anim-sit .j-rarm, .anim-sit .n-rarm {
-  animation: armSit 2.2s ease-in-out forwards;
+  animation: armSit 2.5s ease-in-out forwards;
 }
 @keyframes doSit {
   0%   { transform: translateY(0); }
-  30%, 78% { transform: translateY(50px); }
+  30%, 78% { transform: translateY(15px); }
   100% { transform: translateY(0); }
 }
-@keyframes legSit {
+/* In SVG coords: rotate(+N) swings bottom LEFT, rotate(-N) swings bottom RIGHT */
+@keyframes legSitLeft {
   0%   { transform: rotate(0deg); }
-  30%, 78% { transform: rotate(90deg); }
+  30%, 78% { transform: rotate(65deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes legSitRight {
+  0%   { transform: rotate(0deg); }
+  30%, 78% { transform: rotate(-65deg); }
   100% { transform: rotate(0deg); }
 }
 @keyframes armSit {

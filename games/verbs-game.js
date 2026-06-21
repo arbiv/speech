@@ -21,6 +21,7 @@ const VERBS = [
   { name:'גזירה',  boy:'גוזר',  girl:'גוזרת',  anim:'cut',   sound:'success', sentence: (g)=> g==='j' ? 'הילד גוזר' : 'הילדה גוזרת'  },
   { name:'זריקה',  boy:'זורק',  girl:'זורקת',  anim:'throw', sound:'throw',   sentence: (g)=> g==='j' ? 'הילד זורק' : 'הילדה זורקת'  },
   { name:'חשיבה',  boy:'חושב',  girl:'חושבת',  anim:'think', sound:'think',   sentence: (g)=> g==='j' ? 'הילד חושב' : 'הילדה חושבת'  },
+  { name:'ריצה',   boy:'רץ',    girl:'רצה',    anim:'run',   sound:'jump',    sentence: (g)=> g==='j' ? 'הילד רץ'   : 'הילדה רצה'    },
 ];
 
 /* ============================================================
@@ -160,7 +161,7 @@ function triggerAnimation(char, verbAnim) {
   if (!svgWrap) return;
   const svg = svgWrap.querySelector('svg');
 
-  svg.classList.remove('anim-jump','anim-eat','anim-sit','anim-learn','anim-cut','anim-throw','anim-think');
+  svg.classList.remove('anim-jump','anim-eat','anim-sit','anim-learn','anim-cut','anim-throw','anim-think','anim-run');
   void svg.offsetWidth; // force reflow so re-adding the same class restarts the animation
   svg.classList.add('anim-' + verbAnim);
 
@@ -237,7 +238,7 @@ function resetAnimState() {
     const svgWrap = document.getElementById(c + '-svg-wrap');
     if (!svgWrap) return;
     const svg = svgWrap.querySelector('svg');
-    svg.classList.remove('anim-jump','anim-eat','anim-sit','anim-learn','anim-cut','anim-throw','anim-think');
+    svg.classList.remove('anim-jump','anim-eat','anim-sit','anim-learn','anim-cut','anim-throw','anim-think','anim-run');
   });
   document.getElementById('jonathan-card').classList.remove('highlighted','success-flash');
   document.getElementById('noa-card').classList.remove('highlighted','success-flash');

@@ -10,20 +10,22 @@ test('capture animation frames for all verbs', async ({ page }) => {
   await page.goto('/games/verbs-game.html');
   await page.waitForLoadState('domcontentloaded');
 
-  for (const verb of verbs) {
+  for (let verbIndex = 0; verbIndex < verbs.length; verbIndex++) {
+    const verb = verbs[verbIndex];
     const dir = path.join('screenshots', 'frames', verb);
     fs.mkdirSync(dir, { recursive: true });
+
+    // Click the verb tab so selectVerb() runs and the word display updates
+    await page.locator('.verb-tab').nth(verbIndex).click();
+    await page.waitForTimeout(80);
 
     // Trigger animation: force reflow then add the anim class
     try {
       await page.locator('#j-svg-wrap svg').evaluate((svg, v) => {
-        // Remove all anim-* classes
         [...svg.classList].forEach(cls => {
           if (cls.startsWith('anim-')) svg.classList.remove(cls);
         });
-        // Force reflow
         void svg.offsetWidth;
-        // Add the new animation class
         svg.classList.add(`anim-${v}`);
       }, verb);
     } catch (err) {

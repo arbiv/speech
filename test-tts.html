@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>TTS Test - אוכל</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 2rem; background: #f0f4ff; direction: rtl; }
+  h1 { color: #1e40af; margin-bottom: 0.5rem; }
+  p { color: #555; margin-bottom: 2rem; font-size: 0.9rem; }
+  .btn {
+    display: block;
+    width: 100%;
+    margin: 0.6rem 0;
+    padding: 1rem 1.5rem;
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    background: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-align: right;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn:hover { background: #eff6ff; border-color: #93c5fd; }
+  .btn:active { background: #dbeafe; }
+  .label { font-size: 0.75rem; color: #888; display: block; margin-top: 2px; }
+  .spoken { font-weight: bold; color: #1d4ed8; font-size: 1.3rem; }
+  #status { margin-top: 1.5rem; padding: 0.75rem 1rem; background: #fef9c3; border-radius: 8px; color: #78350f; font-size: 0.9rem; min-height: 2.5rem; }
+</style>
+</head>
+<body>
+<h1>בדיקת הגייה TTS — אוכל (זכר)</h1>
+<p>לחץ/י על כל אפשרות ובדוק/י אם נשמע <strong>במלרע</strong> (הפועל "אוֹכֵל") ולא במלעיל (שם העצם "אֹכֶל").</p>
+
+<button class="btn" onclick="test('אוכל', this)">
+  <span class="spoken">אוכל</span>
+  <span class="label">1. המילה בלבד — ללא ניקוד (הגדרה נוכחית)</span>
+</button>
+
+<button class="btn" onclick="test('אוֹכֵל', this)">
+  <span class="spoken">אוֹכֵל</span>
+  <span class="label">2. המילה עם ניקוד מלא (צורת הפועל)</span>
+</button>
+
+<button class="btn" onclick="test('הילד אוכל', this)">
+  <span class="spoken">הילד אוכל</span>
+  <span class="label">3. משפט שלם ללא ניקוד</span>
+</button>
+
+<button class="btn" onclick="test('הילד אוֹכֵל', this)">
+  <span class="spoken">הילד אוֹכֵל</span>
+  <span class="label">4. משפט שלם עם ניקוד (גרסה נוכחית)</span>
+</button>
+
+<button class="btn" onclick="test('הוא אוכל', this)">
+  <span class="spoken">הוא אוכל</span>
+  <span class="label">5. כינוי גוף + פועל</span>
+</button>
+
+<button class="btn" onclick="test('הוא אוֹכֵל', this)">
+  <span class="spoken">הוא אוֹכֵל</span>
+  <span class="label">6. כינוי גוף + פועל עם ניקוד</span>
+</button>
+
+<button class="btn" onclick="test('כרגע אוכל', this)">
+  <span class="spoken">כרגע אוכל</span>
+  <span class="label">7. תואר פועל + פועל ("כרגע אוכל")</span>
+</button>
+
+<button class="btn" onclick="test('אוכלים', this)">
+  <span class="spoken">אוכלים</span>
+  <span class="label">8. רבים — פחות דו-משמעי</span>
+</button>
+
+<div id="status">לחץ/י על כפתור לבדיקה</div>
+
+<script>
+let heVoice = null;
+const voices = () => speechSynthesis.getVoices();
+
+function initVoice() {
+  const load = () => {
+    const all = speechSynthesis.getVoices();
+    heVoice = all.find(v => v.lang === 'he-IL' || v.lang === 'he')
+           || all.find(v => v.lang.startsWith('he'))
+           || null;
+    const status = document.getElementById('status');
+    if (heVoice) {
+      status.textContent = 'קול עברי נמצא: ' + heVoice.name + ' (' + heVoice.lang + ')';
+    } else {
+      status.textContent = 'לא נמצא קול עברי — TTS עשוי לא לעבוד נכון';
+    }
+  };
+  if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = load;
+  load();
+}
+
+function test(text, btn) {
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  if (heVoice) u.voice = heVoice;
+  u.lang = 'he-IL';
+  u.rate = 0.8;
+  u.pitch = 1.1;
+  u.volume = 1;
+
+  document.querySelectorAll('.btn').forEach(b => b.style.background = '');
+  btn.style.background = '#dbeafe';
+
+  document.getElementById('status').textContent = 'מדבר: "' + text + '"';
+  u.onend = () => { document.getElementById('status').textContent = 'סיים: "' + text + '" — האם נשמע במלרע?'; };
+  speechSynthesis.speak(u);
+}
+
+initVoice();
+</script>
+</body>
+</html>

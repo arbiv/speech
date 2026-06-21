@@ -27,13 +27,17 @@ const VERBS = [
 /* ============================================================
    AUDIO
    ============================================================ */
-function activateAudio() {
-  if (audioReady) return;
-  try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    audioReady = true;
-  } catch(e) {}
+async function activateAudio() {
+  if (audioCtx && audioCtx.state === 'running') { audioReady = true; return; }
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) { return; }
+  }
+  if (audioCtx.state === 'suspended') {
+    try { await audioCtx.resume(); } catch(e) {}
+  }
+  audioReady = audioCtx.state === 'running';
 }
 
 function playTone(freq, type, dur, vol=0.3, delay=0) {
@@ -138,9 +142,9 @@ function speak(text, rate=0.8) {
   speechSynthesis.speak(u);
 }
 
-function speakWord(char, evt) {
+async function speakWord(char, evt) {
   if (evt) { evt.stopPropagation(); }
-  activateAudio();
+  await activateAudio();
   playClick();
   const v = VERBS[currentVerbIndex];
   speak(char === 'j' ? v.boy : v.girl);
@@ -175,9 +179,9 @@ function triggerAnimation(char, verbAnim) {
 /* ============================================================
    SUCCESS TRIGGER
    ============================================================ */
-function triggerSuccess(char) {
+async function triggerSuccess(char) {
   clearTimers();
-  activateAudio();
+  await activateAudio();
 
   const v = VERBS[currentVerbIndex];
 
@@ -201,9 +205,9 @@ function triggerSuccess(char) {
 /* ============================================================
    GAME MODES
    ============================================================ */
-function handleCardClick(char, evt) {
+async function handleCardClick(char, evt) {
   if (evt) evt.stopPropagation();
-  activateAudio();
+  await activateAudio();
   playClick();
 
   if (currentMode === 'click') {
@@ -216,9 +220,9 @@ function handleCardClick(char, evt) {
 /* ============================================================
    VERB SELECTION
    ============================================================ */
-function selectVerb(index, evt) {
+async function selectVerb(index, evt) {
   if (evt) evt.stopPropagation();
-  activateAudio();
+  await activateAudio();
   playClick();
   currentVerbIndex = index;
 
@@ -245,9 +249,9 @@ function resetAnimState() {
   pendingChar = null;
 }
 
-function resetAll(evt) {
+async function resetAll(evt) {
   if (evt) evt.stopPropagation();
-  activateAudio();
+  await activateAudio();
   playClick();
   resetAnimState();
   clearTimers();
@@ -261,9 +265,9 @@ const MODE_HINTS = {
   voice: 'לחצ/י על הדמות ואמר/י את המילה בקול',
 };
 
-function selectMode(mode, evt) {
+async function selectMode(mode, evt) {
   if (evt) evt.stopPropagation();
-  activateAudio();
+  await activateAudio();
   playClick();
   currentMode = mode;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -295,8 +299,8 @@ function closeVoiceOverlay() {
   voiceChar = null;
 }
 
-function toggleListening() {
-  activateAudio();
+async function toggleListening() {
+  await activateAudio();
   if (isListening) { stopListening(); return; }
   startListening();
 }

@@ -30,31 +30,16 @@ const VERBS = [
 function activateAudio() {
   if (audioCtx && audioCtx.state === 'running') { audioReady = true; return; }
   if (!audioCtx) {
-    try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch(e) { return; }
-    // One-time: unlock speechSynthesis while inside the user gesture
-    if ('speechSynthesis' in window) {
-      try { const u = new SpeechSynthesisUtterance(''); u.volume = 0; speechSynthesis.speak(u); } catch(e) {}
-    }
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return; }
   }
-  // Classic iOS unlock: start a silent buffer synchronously within the gesture
-  try {
-    const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
-    const src = audioCtx.createBufferSource();
-    src.buffer = buf;
-    src.connect(audioCtx.destination);
-    src.start(0);
-  } catch(e) {}
-  // Non-blocking resume — context will be ready for the next interaction
-  if (typeof audioCtx.resume === 'function' && audioCtx.state !== 'running') {
+  if (typeof audioCtx.resume === 'function') {
     audioCtx.resume().then(() => { audioReady = audioCtx.state === 'running'; }).catch(() => {});
   }
   audioReady = audioCtx.state === 'running';
 }
 
+// Inner tone builder — no retry, callers handle it
 function playTone(freq, type, dur, vol=0.3, delay=0) {
-  if (!audioCtx || audioCtx.state !== 'running') return;
   const t = audioCtx.currentTime + delay;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -68,52 +53,68 @@ function playTone(freq, type, dur, vol=0.3, delay=0) {
   osc.stop(t + dur + 0.05);
 }
 
+// Each public play function self-retries via resume().then(self) if context is suspended
 function playSuccess() {
-  if (!audioCtx || audioCtx.state !== 'running') return;
-  const notes = [523, 659, 784, 1047];
-  notes.forEach((f,i) => playTone(f, 'sine', 0.18, 0.3, i*0.12));
+  if (!audioCtx) return;
+  if (audioCtx.state !== 'running') {
+    audioCtx.resume().then(() => { audioReady = true; playSuccess(); }).catch(() => {});
+    return;
+  }
+  [523, 659, 784, 1047].forEach((f,i) => playTone(f, 'sine', 0.18, 0.3, i*0.12));
   playTone(1047, 'sine', 0.35, 0.25, 0.5);
 }
 
 function playClick() {
-  if (!audioCtx || audioCtx.state !== 'running') return;
+  if (!audioCtx) return;
+  if (audioCtx.state !== 'running') {
+    audioCtx.resume().then(() => { audioReady = true; playClick(); }).catch(() => {});
+    return;
+  }
   playTone(600, 'square', 0.05, 0.15);
 }
 
 function playJump() {
-  if (!audioCtx || audioCtx.state !== 'running') return;
+  if (!audioCtx) return;
+  if (audioCtx.state !== 'running') {
+    audioCtx.resume().then(() => { audioReady = true; playJump(); }).catch(() => {});
+    return;
+  }
   const t = audioCtx.currentTime;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
+  osc.connect(gain); gain.connect(audioCtx.destination);
   osc.type = 'sawtooth';
   osc.frequency.setValueAtTime(200, t);
   osc.frequency.linearRampToValueAtTime(700, t + 0.3);
   gain.gain.setValueAtTime(0.2, t);
   gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-  osc.start(t);
-  osc.stop(t + 0.45);
+  osc.start(t); osc.stop(t + 0.45);
 }
 
 function playThrow() {
-  if (!audioCtx || audioCtx.state !== 'running') return;
+  if (!audioCtx) return;
+  if (audioCtx.state !== 'running') {
+    audioCtx.resume().then(() => { audioReady = true; playThrow(); }).catch(() => {});
+    return;
+  }
   const t = audioCtx.currentTime;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
+  osc.connect(gain); gain.connect(audioCtx.destination);
   osc.type = 'sawtooth';
   osc.frequency.setValueAtTime(600, t);
   osc.frequency.linearRampToValueAtTime(100, t + 0.5);
   gain.gain.setValueAtTime(0.25, t);
   gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-  osc.start(t);
-  osc.stop(t + 0.65);
+  osc.start(t); osc.stop(t + 0.65);
 }
 
 function playThink() {
-  if (!audioCtx || audioCtx.state !== 'running') return;
+  if (!audioCtx) return;
+  if (audioCtx.state !== 'running') {
+    audioCtx.resume().then(() => { audioReady = true; playThink(); }).catch(() => {});
+    return;
+  }
   [[261,0],[329,0.2],[392,0.4],[523,0.7]].forEach(([f,d]) =>
     playTone(f, 'triangle', 0.5, 0.18, d));
 }

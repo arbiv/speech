@@ -1,8 +1,9 @@
-Generate a clickable preview link for the current speech branch.
+Generate a clickable preview link for the speech games site.
 
-Steps:
-1. Run `git branch --show-current` to get the current branch name
-2. Construct the URL: https://htmlpreview.github.io/?https://github.com/arbiv/speech/blob/BRANCH/index.html
-3. Output it as a clickable markdown link in this exact format:
+The canonical link is GitHub Pages:
+[Preview Speech Games](https://arbiv.github.io/speech/)
 
-[Preview Speech Games on this branch](URL)
+If asked for a branch-specific preview (not yet deployed to main), use:
+https://htmlpreview.github.io/?https://github.com/arbiv/speech/blob/BRANCH/index.html
+
+Note: The htmlpreview link only works for the index page — relative links to the game and its CSS will break. Use the GitHub Pages link for full functionality.

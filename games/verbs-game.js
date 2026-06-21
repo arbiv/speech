@@ -27,14 +27,18 @@ const VERBS = [
 /* ============================================================
    AUDIO
    ============================================================ */
-async function activateAudio() {
+function activateAudio() {
   if (audioCtx && audioCtx.state === 'running') { audioReady = true; return; }
   if (!audioCtx) {
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     } catch(e) { return; }
+    // One-time: unlock speechSynthesis while inside the user gesture
+    if ('speechSynthesis' in window) {
+      try { const u = new SpeechSynthesisUtterance(''); u.volume = 0; speechSynthesis.speak(u); } catch(e) {}
+    }
   }
-  // iOS requires starting an actual audio node synchronously within the user gesture
+  // Classic iOS unlock: start a silent buffer synchronously within the gesture
   try {
     const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
     const src = audioCtx.createBufferSource();
@@ -42,12 +46,9 @@ async function activateAudio() {
     src.connect(audioCtx.destination);
     src.start(0);
   } catch(e) {}
-  // Unlock speechSynthesis for iOS (must be called within a user gesture)
-  if ('speechSynthesis' in window && !audioReady) {
-    try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); } catch(e) {}
-  }
-  if (audioCtx.state !== 'running') {
-    try { await audioCtx.resume(); } catch(e) {}
+  // Non-blocking resume — context will be ready for the next interaction
+  if (typeof audioCtx.resume === 'function' && audioCtx.state !== 'running') {
+    audioCtx.resume().then(() => { audioReady = audioCtx.state === 'running'; }).catch(() => {});
   }
   audioReady = audioCtx.state === 'running';
 }
@@ -154,9 +155,9 @@ function speak(text, rate=0.8) {
   speechSynthesis.speak(u);
 }
 
-async function speakWord(char, evt) {
+function speakWord(char, evt) {
   if (evt) { evt.stopPropagation(); }
-  await activateAudio();
+  activateAudio();
   playClick();
   const v = VERBS[currentVerbIndex];
   speak(char === 'j' ? v.boy : v.girl);
@@ -191,9 +192,9 @@ function triggerAnimation(char, verbAnim) {
 /* ============================================================
    SUCCESS TRIGGER
    ============================================================ */
-async function triggerSuccess(char) {
+function triggerSuccess(char) {
   clearTimers();
-  await activateAudio();
+  activateAudio();
 
   const v = VERBS[currentVerbIndex];
 
@@ -217,9 +218,9 @@ async function triggerSuccess(char) {
 /* ============================================================
    GAME MODES
    ============================================================ */
-async function handleCardClick(char, evt) {
+function handleCardClick(char, evt) {
   if (evt) evt.stopPropagation();
-  await activateAudio();
+  activateAudio();
   playClick();
 
   if (currentMode === 'click') {
@@ -232,9 +233,9 @@ async function handleCardClick(char, evt) {
 /* ============================================================
    VERB SELECTION
    ============================================================ */
-async function selectVerb(index, evt) {
+function selectVerb(index, evt) {
   if (evt) evt.stopPropagation();
-  await activateAudio();
+  activateAudio();
   playClick();
   currentVerbIndex = index;
 
@@ -261,9 +262,9 @@ function resetAnimState() {
   pendingChar = null;
 }
 
-async function resetAll(evt) {
+function resetAll(evt) {
   if (evt) evt.stopPropagation();
-  await activateAudio();
+  activateAudio();
   playClick();
   resetAnimState();
   clearTimers();
@@ -277,9 +278,9 @@ const MODE_HINTS = {
   voice: 'לחצ/י על הדמות ואמר/י את המילה בקול',
 };
 
-async function selectMode(mode, evt) {
+function selectMode(mode, evt) {
   if (evt) evt.stopPropagation();
-  await activateAudio();
+  activateAudio();
   playClick();
   currentMode = mode;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -311,8 +312,8 @@ function closeVoiceOverlay() {
   voiceChar = null;
 }
 
-async function toggleListening() {
-  await activateAudio();
+function toggleListening() {
+  activateAudio();
   if (isListening) { stopListening(); return; }
   startListening();
 }

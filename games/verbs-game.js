@@ -147,7 +147,7 @@ function speakWord(char, evt) {
 }
 
 /* ============================================================
-   ANIMATIONS
+   ANIMATIONS (GSAP)
    ============================================================ */
 let animTimers = [];
 
@@ -161,15 +161,119 @@ function triggerAnimation(char, verbAnim) {
   if (!svgWrap) return;
   const svg = svgWrap.querySelector('svg');
 
-  svg.classList.remove('anim-jump','anim-eat','anim-sit','anim-learn','anim-cut','anim-throw','anim-think','anim-run');
-  void svg.offsetWidth; // force reflow so re-adding the same class restarts the animation
-  svg.classList.add('anim-' + verbAnim);
+  gsap.killTweensOf(svg.querySelectorAll('*'));
 
-  const dur = verbAnim === 'cut' ? 2300 : verbAnim === 'sit' ? 2600 : 1800;
-  const t = setTimeout(() => {
-    svg.classList.remove('anim-' + verbAnim);
-  }, dur);
-  animTimers.push(t);
+  const g  = svg.querySelector('.char-group');
+  const ra = svg.querySelector('.' + char + '-rarm');
+  const la = svg.querySelector('.' + char + '-larm');
+  const rl = svg.querySelector('.' + char + '-rleg');
+  const ll = svg.querySelector('.' + char + '-lleg');
+  const mo = svg.querySelector('.' + char + '-mouth');
+
+  const apple   = svg.querySelector('.' + char + '-apple');
+  const ball    = svg.querySelector('.' + char + '-ball');
+  const scGroup = svg.querySelector('.' + char + '-scissors');
+  const scTop   = svg.querySelector('.' + char + '-scissors-top');
+  const scBot   = svg.querySelector('.' + char + '-scissors-bot');
+  const book    = svg.querySelector('.' + char + '-book');
+  const chair   = svg.querySelector('.' + char + '-chair');
+  const thought = svg.querySelector('.' + char + '-thought');
+
+  const OG = '50% 100%'; // char-group origin
+  const OL = '50% 0%';   // limb origin (shoulder / hip)
+  const OC = '50% 50%';  // center origin
+
+  const props = [apple, ball, scGroup, book, chair, thought];
+  const parts = [g, ra, la, rl, ll, mo];
+
+  function done() {
+    gsap.set(parts.filter(Boolean), { clearProps: 'transform' });
+    props.filter(Boolean).forEach(el => gsap.set(el, { clearProps: 'all' }));
+  }
+
+  const tl = gsap.timeline({ onComplete: done });
+
+  if (verbAnim === 'jump') {
+    tl.to(g, { scaleX: 1.12, scaleY: 0.88, y: 5, duration: 0.1, ease: 'power2.in', transformOrigin: OG })
+      .to(g, { scaleX: 0.88, scaleY: 1.18, y: -65, duration: 0.3, ease: 'power2.out', transformOrigin: OG })
+      .to(g, { scaleX: 1.22, scaleY: 0.78, y: 7, duration: 0.22, ease: 'power4.in', transformOrigin: OG })
+      .to(g, { scaleX: 1, scaleY: 1, y: 0, duration: 0.55, ease: 'elastic.out(1.1, 0.4)', transformOrigin: OG });
+
+  } else if (verbAnim === 'eat') {
+    if (apple) gsap.set(apple, { display: 'block' });
+    tl.to(ra, { rotation: -85, duration: 0.28, ease: 'back.out(1.7)', transformOrigin: OL })
+      .to(mo, { scaleY: 2.5, duration: 0.12, ease: 'power2.in', transformOrigin: OC }, '<0.1')
+      .to(mo, { scaleY: 0.5, duration: 0.12, ease: 'power2.out', transformOrigin: OC })
+      .to(mo, { scaleY: 2.5, duration: 0.12, ease: 'power2.in', transformOrigin: OC })
+      .to(mo, { scaleY: 0.5, duration: 0.12, ease: 'power2.out', transformOrigin: OC })
+      .to(mo, { scaleY: 2.5, duration: 0.12, ease: 'power2.in', transformOrigin: OC })
+      .to(mo, { scaleY: 1, duration: 0.3, ease: 'elastic.out(1, 0.5)', transformOrigin: OC })
+      .to(ra, { rotation: 0, duration: 0.45, ease: 'elastic.out(1, 0.5)', transformOrigin: OL }, '-=0.45');
+
+  } else if (verbAnim === 'sit') {
+    if (chair) gsap.set(chair, { display: 'block' });
+    tl.to(g,  { y: 15, duration: 0.38, ease: 'back.out(1.4)', transformOrigin: OG })
+      .to(ll, { rotation: 65,  duration: 0.38, ease: 'back.out(1.4)', transformOrigin: OL }, '<')
+      .to(rl, { rotation: -65, duration: 0.38, ease: 'back.out(1.4)', transformOrigin: OL }, '<')
+      .to(ra, { rotation: 18,  duration: 0.38, ease: 'power2.out', transformOrigin: OL }, '<')
+      .to(la, { rotation: 18,  duration: 0.38, ease: 'power2.out', transformOrigin: OL }, '<')
+      .to({}, { duration: 0.85 })
+      .to(g,  { y: 0,  duration: 0.48, ease: 'elastic.out(1, 0.5)', transformOrigin: OG })
+      .to(ll, { rotation: 0, duration: 0.48, ease: 'elastic.out(1, 0.5)', transformOrigin: OL }, '<')
+      .to(rl, { rotation: 0, duration: 0.48, ease: 'elastic.out(1, 0.5)', transformOrigin: OL }, '<')
+      .to(ra, { rotation: 0, duration: 0.48, ease: 'elastic.out(1, 0.5)', transformOrigin: OL }, '<')
+      .to(la, { rotation: 0, duration: 0.48, ease: 'elastic.out(1, 0.5)', transformOrigin: OL }, '<');
+
+  } else if (verbAnim === 'learn') {
+    if (book) gsap.set(book, { display: 'block' });
+    tl.to(g, { rotation: -7, duration: 0.38, ease: 'back.out(1.7)', transformOrigin: OG })
+      .to(g, { rotation: 7,  duration: 0.5,  ease: 'elastic.out(1, 0.4)', transformOrigin: OG })
+      .to(g, { rotation: -6, duration: 0.38, ease: 'power2.inOut', transformOrigin: OG })
+      .to(g, { rotation: 6,  duration: 0.38, ease: 'power2.inOut', transformOrigin: OG })
+      .to(g, { rotation: 0,  duration: 0.45, ease: 'elastic.out(1, 0.5)', transformOrigin: OG });
+
+  } else if (verbAnim === 'cut') {
+    if (scGroup) gsap.set(scGroup, { display: 'block' });
+    if (scTop) gsap.set(scTop, { transformOrigin: '65% 100%' });
+    if (scBot) gsap.set(scBot, { transformOrigin: '65% 0%' });
+    tl.to(ra, { rotation: -55, duration: 0.28, ease: 'back.out(1.7)', transformOrigin: OL });
+    for (let i = 0; i < 3; i++) {
+      tl.to(scTop, { rotation: -28, duration: 0.16, ease: 'power3.in' })
+        .to(scBot, { rotation: 28,  duration: 0.16, ease: 'power3.in' }, '<')
+        .to(scTop, { rotation: 0,   duration: 0.2,  ease: 'elastic.out(2, 0.3)' })
+        .to(scBot, { rotation: 0,   duration: 0.2,  ease: 'elastic.out(2, 0.3)' }, '<');
+    }
+    tl.to(ra, { rotation: 0, duration: 0.4, ease: 'elastic.out(1, 0.5)', transformOrigin: OL });
+
+  } else if (verbAnim === 'throw') {
+    if (ball) gsap.set(ball, { display: 'block', x: 0, y: 0, scale: 1, opacity: 1 });
+    tl.to(ra, { rotation: -40, duration: 0.18, ease: 'power3.in', transformOrigin: OL })
+      .to(ra, { rotation: 70,  duration: 0.14, ease: 'power4.out', transformOrigin: OL })
+      .to(ball, { x: 140, y: -20, scale: 0.3, opacity: 0, duration: 0.65, ease: 'power2.out' }, '<')
+      .to(ra, { rotation: 0, duration: 0.45, ease: 'elastic.out(1, 0.5)', transformOrigin: OL });
+
+  } else if (verbAnim === 'think') {
+    if (thought) gsap.set(thought, { display: 'block', y: 20, opacity: 0 });
+    tl.to(ra, { rotation: -100, duration: 0.48, ease: 'power2.inOut', transformOrigin: OL })
+      .to(thought, { y: -10, opacity: 1, duration: 0.45, ease: 'power2.out' }, '-=0.3')
+      .to({}, { duration: 0.4 })
+      .to(thought, { y: -25, opacity: 0, duration: 0.38, ease: 'power1.in' })
+      .to(ra, { rotation: 0, duration: 0.48, ease: 'elastic.out(1, 0.5)', transformOrigin: OL }, '<');
+
+  } else if (verbAnim === 'run') {
+    const s = 0.22;
+    for (let i = 0; i < 3; i++) {
+      const d = i % 2 === 0 ? 1 : -1;
+      tl.to(ll, { rotation: d * -48, duration: s, ease: 'power2.inOut', transformOrigin: OL })
+        .to(rl,  { rotation: d * 38,  duration: s, ease: 'power2.inOut', transformOrigin: OL }, '<')
+        .to(la,  { rotation: d * 45,  duration: s, ease: 'power2.inOut', transformOrigin: OL }, '<')
+        .to(ra,  { rotation: d * -35, duration: s, ease: 'power2.inOut', transformOrigin: OL }, '<')
+        .to(g,   { y: -9, duration: s / 2, ease: 'power2.out', transformOrigin: OG }, '<')
+        .to(g,   { y: 0,  duration: s / 2, ease: 'power2.in',  transformOrigin: OG });
+    }
+    tl.to([ll, rl, la, ra], { rotation: 0, duration: 0.4, ease: 'elastic.out(1, 0.5)', transformOrigin: OL })
+      .to(g, { y: 0, duration: 0.4, ease: 'elastic.out(1, 0.5)', transformOrigin: OG }, '<');
+  }
 }
 
 /* ============================================================
@@ -238,7 +342,8 @@ function resetAnimState() {
     const svgWrap = document.getElementById(c + '-svg-wrap');
     if (!svgWrap) return;
     const svg = svgWrap.querySelector('svg');
-    svg.classList.remove('anim-jump','anim-eat','anim-sit','anim-learn','anim-cut','anim-throw','anim-think','anim-run');
+    gsap.killTweensOf(svg.querySelectorAll('*'));
+    gsap.set(svg.querySelectorAll('*'), { clearProps: 'transform,opacity,display' });
   });
   document.getElementById('jonathan-card').classList.remove('highlighted','success-flash');
   document.getElementById('noa-card').classList.remove('highlighted','success-flash');

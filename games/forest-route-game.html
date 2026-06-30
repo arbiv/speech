@@ -330,21 +330,53 @@
 </div>
 
 <script>
-/* ================= AUDIO ENGINE (Web Audio API, no files needed) ================= */
+/* ================= AUDIO ENGINE (Web Audio API, iPhone-safe) ================= */
 let audioCtx = null;
 let soundOn = true;
+let _audioReadyPromise = null;
+
+// Returns a Promise that resolves once the AudioContext is running and unlocked.
+// On iOS Safari, AudioContext.resume() is async and oscillators scheduled before
+// it resolves are silently dropped — so every sound function awaits this first.
 function ensureAudio(){
-  if(!audioCtx){
+  if(_audioReadyPromise) return _audioReadyPromise;
+
+  try {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if(audioCtx.state === 'suspended') audioCtx.resume();
+  } catch(e){ return Promise.resolve(); }
+
+  _audioReadyPromise = audioCtx.resume().then(()=>{
+    // Play a silent buffer — required by iOS to fully unlock the context
+    try{
+      const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(audioCtx.destination);
+      src.start(0);
+    }catch(e){}
+  }).catch(()=>{});
+
+  return _audioReadyPromise;
 }
 
-function playTone(freq, dur=0.18, type='sine', vol=0.18, delay=0){
-  if(!soundOn) return;
-  ensureAudio();
+// Re-unlock after the page becomes visible again (iOS suspends on tab switch)
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible' && audioCtx && audioCtx.state === 'suspended'){
+    audioCtx.resume().catch(()=>{});
+  }
+});
+
+// Unlock as early as possible on first touch/click — must happen inside gesture
+function _touchUnlock(){
+  if(!_audioReadyPromise) ensureAudio();
+  else if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+}
+window.addEventListener('touchstart', _touchUnlock, { once:true, passive:true });
+window.addEventListener('mousedown',  _touchUnlock, { once:true });
+
+function _scheduleTone(freq, dur, type, vol, delay){
   const t0 = audioCtx.currentTime + delay;
-  const osc = audioCtx.createOscillator();
+  const osc  = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.type = type;
   osc.frequency.setValueAtTime(freq, t0);
@@ -354,6 +386,11 @@ function playTone(freq, dur=0.18, type='sine', vol=0.18, delay=0){
   osc.connect(gain).connect(audioCtx.destination);
   osc.start(t0);
   osc.stop(t0+dur+0.02);
+}
+
+function playTone(freq, dur=0.18, type='sine', vol=0.18, delay=0){
+  if(!soundOn) return;
+  ensureAudio().then(()=>{ if(audioCtx) _scheduleTone(freq, dur, type, vol, delay); });
 }
 
 // step sound: gentle plucky "boop" with slight pitch rise based on tile index
@@ -384,19 +421,21 @@ function playTwinkle(){
 // rainbow whoosh
 function playWhoosh(){
   if(!soundOn) return;
-  ensureAudio();
-  const t0 = audioCtx.currentTime;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(200, t0);
-  osc.frequency.exponentialRampToValueAtTime(900, t0+0.4);
-  gain.gain.setValueAtTime(0.0001, t0);
-  gain.gain.exponentialRampToValueAtTime(0.1, t0+0.05);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.45);
-  osc.connect(gain).connect(audioCtx.destination);
-  osc.start(t0);
-  osc.stop(t0+0.5);
+  ensureAudio().then(()=>{
+    if(!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200, t0);
+    osc.frequency.exponentialRampToValueAtTime(900, t0+0.4);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(0.1, t0+0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.45);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t0);
+    osc.stop(t0+0.5);
+  });
 }
 
 // fanfare for finishing
@@ -408,7 +447,7 @@ function playFanfare(){
 document.getElementById('soundToggle').addEventListener('click', ()=>{
   soundOn = !soundOn;
   document.getElementById('soundToggle').textContent = soundOn ? '🔊' : '🔇';
-  if(soundOn){ ensureAudio(); playTwinkle(); }
+  if(soundOn){ ensureAudio().then(()=> playTwinkle()); }
 });
 
 /* ================= FIREFLIES (background ambience) ================= */

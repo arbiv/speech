@@ -5,8 +5,9 @@ test.describe('Landing page', () => {
     await page.goto('/');
     await expect(page).toHaveTitle('משחקי דיבור');
     await expect(page.locator('h1')).toContainText('משחקי דיבור');
-    await expect(page.locator('.game-card')).toBeVisible();
-    await expect(page.locator('.game-card')).toHaveAttribute('href', 'games/verbs-game.html');
+    const verbsCard = page.locator('.game-card[href="games/verbs-game.html"]');
+    await expect(verbsCard).toBeVisible();
+    await expect(verbsCard).toHaveAttribute('href', 'games/verbs-game.html');
     await page.screenshot({ path: 'screenshots/index.png', fullPage: true });
   });
 });

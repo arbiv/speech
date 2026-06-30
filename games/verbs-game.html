@@ -9,6 +9,17 @@
 </head>
 <body class="min-h-screen flex flex-col" onclick="activateAudio()" ontouchstart="activateAudio()">
 
+<!-- Animated gradient orbs — living background depth -->
+<div aria-hidden="true" style="position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;">
+  <div class="bg-orb" style="width:520px;height:520px;left:-160px;top:-120px;background:#bfdbfe;animation-duration:22s;"></div>
+  <div class="bg-orb" style="width:460px;height:460px;right:-130px;top:12%;background:#fce7f3;animation-duration:28s;animation-delay:-9s;"></div>
+  <div class="bg-orb" style="width:420px;height:420px;left:18%;bottom:-110px;background:#d1fae5;animation-duration:20s;animation-delay:-5s;"></div>
+  <div class="bg-orb" style="width:300px;height:300px;right:12%;bottom:8%;background:#fef3c7;animation-duration:26s;animation-delay:-14s;"></div>
+</div>
+
+<!-- Canvas for physics-based confetti celebrations -->
+<canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9998;"></canvas>
+
 <!-- ===== HEADER ===== -->
 <header class="text-center py-4 px-4">
   <h1 class="text-4xl font-black" style="background:linear-gradient(135deg,#1e40af,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
@@ -377,6 +388,7 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="verbs-game.js"></script>
 </body>
 </html>

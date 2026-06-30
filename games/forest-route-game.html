@@ -788,7 +788,6 @@ const hero = document.getElementById('hero');
 hero.src = heroURL;
 
 let current = -1;
-const startPoint = { x: positions[0].x - 70, y: positions[0].y };
 
 function svgPointToPixel(svgX, svgY){
   const rect = svg.getBoundingClientRect();
@@ -979,22 +978,36 @@ function celebrate(){
   }
 }
 
+function placeHeroInitial(){
+  const p0 = positions[0];
+  // Convert tile 1's bottom edge from SVG coords to pixels, then push the
+  // hero anchor down so the hero's top edge sits 10px below the tile bottom.
+  // #hero has height:70px and transform:translate(-50%,-82%), so the CSS top
+  // property is 82% of 70px = 57.4px above the rendered top edge.
+  const pos = svgPointToPixel(p0.x, p0.y + tileH / 2);
+  hero.style.left = pos.left + "px";
+  hero.style.top = (pos.top + 10 + 70 * 0.82) + "px";
+}
+
 function resetGame(){
   current = -1;
   refreshTileStates();
   updateProgress();
-  placeHero(startPoint.x+70, startPoint.y, false);
+  placeHeroInitial();
   document.getElementById('winBanner').classList.remove('show');
 }
 
 window.addEventListener('load', ()=>{
   refreshTileStates();
   updateProgress();
-  placeHero(startPoint.x+70, startPoint.y, false);
+  placeHeroInitial();
 });
 window.addEventListener('resize', ()=>{
-  const p = current>=0 ? positions[current] : {x:startPoint.x+70, y:startPoint.y};
-  placeHero(p.x, p.y, false);
+  if(current >= 0){
+    placeHero(positions[current].x, positions[current].y, false);
+  } else {
+    placeHeroInitial();
+  }
 });
 </script>
 
